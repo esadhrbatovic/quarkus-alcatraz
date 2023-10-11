@@ -1,6 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
-import at.ac.fhcampuswien.aclatraz.client.rmi.RmiClient;
+import at.ac.fhcampuswien.alcatraz.client.rmi.RmiClient;
 import at.ac.fhcampuswien.alcatraz.shared.exception.DuplicatePlayerException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.FullLobbyException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.GameRunningException;

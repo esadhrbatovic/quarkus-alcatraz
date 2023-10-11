@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.aclatraz.client.rmi;
+package at.ac.fhcampuswien.alcatraz.client.rmi;
 
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,0 +1,13 @@
+ENABLING Dangerous Monitor Commands! Make sure Spread network is secured
+Set runtime directory to '/var/run/spread'
+Finished configuration file.
+config_parse.y:The full segment string is 112 characters long:
+Segment 192.168.0.255:4803 pc 192.168.0.61 ANY D C M 192.168.0.61 laptop 192.168.0.146 ANY D C M 192.168.0.146 
+The version string is 13 characters long:
+Version: 4.0
+Full hash string is 125 characters long:
+Segment 192.168.0.255:4803 pc 192.168.0.61 ANY D C M 192.168.0.61 laptop 192.168.0.146 ANY D C M 192.168.0.146 
+Version: 4.0
+Hash value for this configuration is: 1215459834
+Conf_load_conf_file: My proc id (192.168.178.31) is not in configuration
+Exit caused by Alarm(EXIT)

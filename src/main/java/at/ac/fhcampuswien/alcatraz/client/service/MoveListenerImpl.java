@@ -4,6 +4,7 @@ package at.ac.fhcampuswien.alcatraz.client.service;
 import at.ac.fhcampuswien.alcatraz.shared.model.CustomMoveListener;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.falb.games.alcatraz.api.IllegalMoveException;
+import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
 
@@ -14,23 +15,24 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MoveListenerImpl implements CustomMoveListener {
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-    ClientUiService clientUiService;
+@ApplicationScoped
+public class MoveListenerImpl implements MoveListener {
+
+    @Inject
+    ClientController clientController;
 
     private static final Logger log = Logger.getLogger(MoveListenerImpl.class);
 
     public static final int TIME_TO_RETRY_CONNECTION = 100;
     public static final int MAX_REMOTE_EXCEPTIONS = 5;
 
-    public MoveListenerImpl(ClientUiService clientUiService) {
-        this.clientUiService = clientUiService;
-    }
-
     @Override
     public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
-        List<NetPlayer> otherPlayers = this.clientUiService
-                .getSession()
+        List<NetPlayer> otherPlayers = this.clientController
+                .getGameSession()
                 .stream()
                 .filter(remotePlayer -> remotePlayer.getId() != player.getId()).toList();
 
@@ -66,8 +68,8 @@ public class MoveListenerImpl implements CustomMoveListener {
     }
 
     private void handleQuitGame() {
-        this.clientUiService
-                .getSession()
+        this.clientController
+                .getGameSession()
                 .forEach(remotePlayer -> {
                     try {
                         remotePlayer.getClientService().quitGame();
@@ -84,8 +86,8 @@ public class MoveListenerImpl implements CustomMoveListener {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        clientUiService
-                                .getSession()
+                        clientController
+                                .getGameSession()
                                 .forEach(remotePlayer -> {
                                     try {
                                         remotePlayer.getClientService().closeGame();

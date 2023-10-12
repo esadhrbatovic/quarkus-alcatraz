@@ -1,8 +1,9 @@
 package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
+import at.ac.fhcampuswien.alcatraz.server.spread.RmiServer;
 import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.server.spread.enums.SpreadMessageType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -16,7 +17,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Singleton
 public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializable {
@@ -26,6 +29,9 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     private static final Logger log = Logger.getLogger(SpreadMessageHandlerImpl.class);
     @Inject
     ServerState serverState;
+
+    @Inject
+    RmiServer rmiServer;
 
     @Override
     public void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) throws RemoteException, AlreadyBoundException {
@@ -70,15 +76,16 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
             log.error(e.getMessage(), e);
         }
         log.info("------------------------------------");
+
     }
 
     @Override
-    public void syncSession(SpreadConnection connection, SpreadGroup group, Session<NetPlayer> lobby) {
+    public void syncSession(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {
         try {
             log.info("Sending lobby State to all");
 
             SpreadMessage message = new SpreadMessage();
-            message.setObject(lobby);
+            message.setObject(gameSession);
             message.setType(SpreadMessageType.SYNC.getNumVal());
             message.addGroup(group);
 
@@ -91,8 +98,8 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     }
 
     @Override
-    public void handleSyncSession(Session<NetPlayer> session) {
-        this.serverState.setSession(session);
+    public void handleSyncSession(GameSession<NetPlayer> gameSession) {
+        this.serverState.setSession(gameSession);
     }
 
     private void votePrimaryAndSync(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage, boolean someoneLeft) {
@@ -114,7 +121,12 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
                     .orElseThrow(() -> new RuntimeException("Could not determine primary/backup state of the new Server"));
             this.serverState.setPrimary(this.serverState.getServerId() == maxId);
         }
+
+
         log.info(this.serverState.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
+        if(this.serverState.isPrimary()){
+            this.rmiServer.registerRMIEndpoint();
+        }
     }
 
     private int getIdOfMember(String name) {

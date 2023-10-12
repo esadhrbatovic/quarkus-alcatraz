@@ -4,8 +4,9 @@ import at.ac.fhcampuswien.alcatraz.shared.exception.TimeOutException;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
 import at.ac.fhcampuswien.alcatraz.shared.model.AlcatrazBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.falb.games.alcatraz.api.IllegalMoveException;
+import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
 import io.quarkus.runtime.Quarkus;
@@ -21,10 +22,12 @@ import java.rmi.server.UnicastRemoteObject;
 
 @ApplicationScoped
 public class ClientServiceImpl extends UnicastRemoteObject implements ClientService, Serializable {
-    @Inject
-    ClientUiService clientUiService;
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Inject
+    MoveListener moveListener;
+
     AlcatrazBean alcatraz = new AlcatrazBean();
 
     protected ClientServiceImpl() throws RemoteException {
@@ -37,11 +40,11 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     }
 
     @Override
-    public void startGame(Session<NetPlayer> players, NetPlayer localPlayer) throws RemoteException {
+    public void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException {
         this.alcatraz.init(players.size(), localPlayer.getId());
         players.forEach(remotePlayer -> this.alcatraz.getPlayer(remotePlayer.getId())
                 .setName(remotePlayer.getName()));
-        this.alcatraz.addMoveListener(new MoveListenerImpl(clientUiService));
+        this.alcatraz.addMoveListener(moveListener);
         this.alcatraz.showWindow();
         this.alcatraz.start();
     }

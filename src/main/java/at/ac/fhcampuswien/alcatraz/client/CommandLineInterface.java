@@ -1,21 +1,18 @@
 package at.ac.fhcampuswien.alcatraz.client;
 
-import at.ac.fhcampuswien.alcatraz.client.service.ClientUiService;
+import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
 import at.ac.fhcampuswien.alcatraz.shared.cli.Menu;
-import at.ac.fhcampuswien.alcatraz.shared.exception.DuplicatePlayerException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullLobbyException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.GameRunningException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+
 import org.jboss.logging.Logger;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.Random;
 import java.util.Scanner;
 
 
@@ -24,7 +21,7 @@ public class CommandLineInterface {
     private static final Logger log = Logger.getLogger(CommandLineInterface.class);
 
     @Inject
-    ClientUiService clientUiService;
+    ClientController clientController;
 
     String username;
 
@@ -58,10 +55,10 @@ public class CommandLineInterface {
 
                 //String input = RandomStringGenerator.generateRandomString(8);
 
-                clientUiService.register(input);
+                clientController.register(input);
                 this.username = input;
                 System.out.println("Your player has been registered.");
-            } catch (DuplicatePlayerException | GameRunningException | FullLobbyException e) {
+            } catch (PlayerAlreadyExistsException | GameRunningException | FullSessionException e) {
                 System.out.println(e.getMessage());
             } catch (NotBoundException | RemoteException e) {
                 throw new RuntimeException(e);
@@ -76,7 +73,7 @@ public class CommandLineInterface {
             System.out.println("There is no player registered");
         } else {
             try {
-                clientUiService.unregister(this.username);
+                clientController.unregister(this.username);
                 this.username = null;
                 System.out.println("Your player has been unregistered.");
             } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
@@ -91,7 +88,7 @@ public class CommandLineInterface {
             System.out.println("There is no player registered");
         } else {
             try {
-                clientUiService.ready(this.username);
+                clientController.joinSession(this.username);
                 System.out.println("Your player now has the status 'ready'.");
             } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
                 System.out.println(e.getMessage());
@@ -105,7 +102,7 @@ public class CommandLineInterface {
             System.out.println("There is no player registered");
         } else {
             try {
-                clientUiService.undoReady(this.username);
+                clientController.renameSession(this.username);
                 System.out.println("Your player now has the status 'not ready'.");
             } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
                 System.out.println(e.getMessage());
@@ -115,13 +112,13 @@ public class CommandLineInterface {
 
 
     private void findNewPrimary() throws RemoteException {
-        this.clientUiService.findNewPrimary();
+        this.clientController.findNewPrimary();
     }
 
     // todo: wonky exception handling here
     private void ensureServerIsAvailableAndPrimary() {
         try {
-            if (this.clientUiService.getRegistrationService() == null || !this.clientUiService.getRegistrationService()
+            if (this.clientController.getRegistrationService() == null || !this.clientController.getRegistrationService()
                     .isPrimary()) {
                 findNewPrimary();
             }
@@ -133,7 +130,6 @@ public class CommandLineInterface {
                 log.error(ex.getMessage());
 
                 System.exit(0);
-
             }
         }
     }

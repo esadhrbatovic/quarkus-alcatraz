@@ -1,14 +1,15 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
 import at.ac.fhcampuswien.alcatraz.client.rmi.RmiClient;
-import at.ac.fhcampuswien.alcatraz.shared.exception.DuplicatePlayerException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullLobbyException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.GameRunningException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
+import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistryProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.rmi.AlreadyBoundException;
@@ -20,7 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @ApplicationScoped
-public class ClientUiService {
+public class ClientController {
 
     RegistrationService registrationService;
 
@@ -30,20 +31,19 @@ public class ClientUiService {
     @Inject
     ClientService clientService;
 
-    private Session<NetPlayer> session;
+    private GameSession<NetPlayer> gameSession;
 
-    public void register(String name) throws RemoteException, DuplicatePlayerException, FullLobbyException, GameRunningException, NotBoundException {
-        int id = registrationService.getLobbySize();
-        UUID remoteIdentifier = UUID.randomUUID();
-        Registry registry = getOrCreateRegistry(1098);
+    public void register(String name) throws RemoteException, PlayerAlreadyExistsException, FullSessionException, GameRunningException, NotBoundException {
         try {
+            int id = registrationService.getLobbySize();
+            Registry registry = RegistryProvider.getOrCreateRegistry(1098);
+            UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("ClientService"+ remoteIdentifier, clientService);
+            NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
+            this.gameSession = registrationService.registerMe(localPlayer);
         } catch (AlreadyBoundException e) {
             throw new RuntimeException(e);
         }
-        NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
-
-        this.session = registrationService.registerMe(localPlayer);
     }
 
     public void findNewPrimary() throws RemoteException {
@@ -55,18 +55,18 @@ public class ClientUiService {
         registrationService.unregister(remotePlayer);
     }
 
-    public void ready(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
+    public void joinSession(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
         NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.ready(remotePlayer);
+        registrationService.joinSession(remotePlayer);
     }
 
-    public void undoReady(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
+    public void renameSession(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
         NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.undoReady(remotePlayer);
+        registrationService.leaveSession(remotePlayer);
     }
 
     private NetPlayer findPlayerBy(String name) {
-        return this.session.stream()
+        return this.gameSession.stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException("The specified player could not be found"));
@@ -77,30 +77,12 @@ public class ClientUiService {
     }
 
 
-    Session<NetPlayer> getSession() {
+    GameSession<NetPlayer> getGameSession() {
         try {
-            return registrationService.getSession();
+            return registrationService.getGameSession();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     };
-
-    public static Registry getOrCreateRegistry(int port) {
-        Registry registry;
-        try {
-            // Try to get the existing registry
-            registry = LocateRegistry.getRegistry(port);
-            // Test if registry is actually running by retrieving list of bound names
-            registry.list();
-        } catch (RemoteException e) {
-            // Could not get registry or registry is not running, create it
-            try {
-                registry = LocateRegistry.createRegistry(port);
-            } catch (RemoteException ex) {
-                throw new RuntimeException("Could not create registry on port " + port, ex);
-            }
-        }
-        return registry;
-    }
 
 }

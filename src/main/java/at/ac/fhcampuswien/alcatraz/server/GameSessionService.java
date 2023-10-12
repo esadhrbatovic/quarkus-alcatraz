@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server;
 import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
-import at.ac.fhcampuswien.alcatraz.shared.exception.DuplicatePlayerException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullLobbyException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import jakarta.inject.Inject;
@@ -13,11 +13,13 @@ import java.rmi.RemoteException;
 import java.util.Objects;
 
 @Singleton
-public class GameLogicService implements Serializable {
+public class GameSessionService implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
     @Inject
     ServerState serverState;
+
     static int MIN_PLAYERS = 2;
     static int MAX_PLAYERS = 4;
     boolean gameRunning = false;
@@ -36,9 +38,10 @@ public class GameLogicService implements Serializable {
                 .remove(player);
     }
 
+    //TODO: change
     public void ready(NetPlayer player) throws RemoteException {
         checkGameRunning();
-        NetPlayer findPlayer = findPlayerBy(player.getName());
+        NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReady(true);
         if (this.serverState.getSession()
                 .stream()
@@ -54,18 +57,15 @@ public class GameLogicService implements Serializable {
 
     public void undoReady(NetPlayer player) {
         checkGameRunning();
-
-        NetPlayer findPlayer = findPlayerBy(player.getName());
-
+        NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReady(false);
     }
 
     private void validatePlayerName(String name)  {
-
         this.serverState.getSession()
                 .forEach(remotePlayer -> {
                     if (Objects.equals(remotePlayer.getName(), name)) {
-                        throw new DuplicatePlayerException("This player name is already taken.");
+                        throw new PlayerAlreadyExistsException("This player name is already taken.");
                     }
                 });
     }
@@ -73,13 +73,13 @@ public class GameLogicService implements Serializable {
     private void validatePlayerCount() {
         if (this.serverState.getSession()
                 .size() >= MAX_PLAYERS) {
-            throw new FullLobbyException("The lobby is already full.");
+            throw new FullSessionException("The lobby is already full.");
         }
     }
     private void checkGameRunning() {
     }
 
-    private NetPlayer findPlayerBy(String name) {
+    private NetPlayer findPlayer(String name) {
         return this.serverState.getSession()
                 .stream()
                 .filter(x -> Objects.equals(x.getName(), name))

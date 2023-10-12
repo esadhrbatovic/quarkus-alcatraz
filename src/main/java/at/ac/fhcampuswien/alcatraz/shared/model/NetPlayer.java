@@ -3,12 +3,13 @@ package at.ac.fhcampuswien.alcatraz.shared.model;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
 import at.falb.games.alcatraz.api.Player;
 
+import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.UUID;
 
-public class NetPlayer extends Player {
+public class NetPlayer extends Player implements Serializable {
 
     boolean ready;
 

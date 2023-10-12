@@ -1,21 +1,25 @@
 package at.ac.fhcampuswien.alcatraz.server.spread;
 
-
-
 import at.ac.fhcampuswien.alcatraz.server.spread.service.SpreadMessageHandler;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.server.spread.enums.SpreadMessageType;
+
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
@@ -28,30 +32,41 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     private static final long serialVersionUID = 1L;
     @Inject
     SpreadMessageHandler spreadMessageHandler;
+    @Inject
     ServerState serverState;
-    SpreadGroupBean spreadGroup;
-    SpreadConnectionBean spreadConnection;
     @ConfigProperty(name = "spread-server")
     String spreadServer;
 
+    SpreadGroupBean spreadGroup;
+    SpreadConnectionBean spreadConnection;
+
     private static final Logger log = Logger.getLogger(SpreadCommunicator.class);
 
-    public SpreadCommunicator( SpreadMessageHandler spreadMessageHandler, ServerState serverState, @ConfigProperty(name = "spread-server") String spreadServer) throws AlreadyBoundException, RemoteException {
-        this.spreadMessageHandler = spreadMessageHandler;
-        this.spreadServer = spreadServer;
-        this.serverState = serverState;
+    @PostConstruct
+    public void initSpread(){
         this.spreadConnection = spreadConnection();
         this.spreadGroup = spreadGroup();
     }
 
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
-        // TODO: Implement Message Received Listener
         log.info("Received Message");
-        if (Objects.equals(SpreadMessageType.valueOfLabel(spreadMessage.getType()), SpreadMessageType.SYNC) /* && spreadMessage.getObject() instanceof Session session */) {
-            log.info("Got Lobby Object to sync!");
-            log.info(this.serverState.getSession().toString());
-            spreadMessageHandler.handleSyncSession(this.serverState.getSession());
+        try {
+            System.out.println("Spreader's object  " + getObject(spreadMessage.getData()));
+        } catch (SpreadException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (Objects.equals(SpreadMessageType.valueOfLabel(spreadMessage.getType()), SpreadMessageType.SYNC)) {
+                if(getObject(spreadMessage.getData()) instanceof GameSession){
+                    log.info("Got Lobby Object to sync!");
+                    log.info((GameSession) getObject(spreadMessage.getData()));
+                    spreadMessageHandler.handleSyncSession((GameSession) getObject(spreadMessage.getData()));
+                }
+
+            }
+        } catch (SpreadException e) {
+            e.printStackTrace();
         }
     }
 
@@ -64,8 +79,8 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
         }
     }
 
-    public void sendMessageToSpread(Session<NetPlayer> lobby) {
-        spreadMessageHandler.syncSession(spreadConnection, spreadGroup, lobby);
+    public void sendMessageToSpread(GameSession<NetPlayer> session) {
+        spreadMessageHandler.syncSession(spreadConnection, spreadGroup, session);
     }
 
     public SpreadConnectionBean spreadConnection() {
@@ -107,4 +122,33 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
         }
         return spreadGroup;
     }
+
+    public Object getObject(byte[] data) throws SpreadException {
+        ByteArrayInputStream var1 = new ByteArrayInputStream(data);
+
+        ObjectInputStream var2;
+        try {
+            var2 = new ObjectInputStream(var1);
+        } catch (IOException var8) {
+            throw new SpreadException("ObjectInputStream(): " + var8);
+        }
+
+        Object var3;
+        try {
+            var3 = var2.readObject();
+        } catch (ClassNotFoundException var6) {
+            throw new SpreadException("readObject(): " + var6);
+        } catch (IOException var7) {
+            throw new SpreadException("readObject(): " + var7);
+        }
+
+        try {
+            var2.close();
+            var1.close();
+            return var3;
+        } catch (IOException var5) {
+            throw new SpreadException("close/close(): " + var5);
+        }
+    }
+
 }

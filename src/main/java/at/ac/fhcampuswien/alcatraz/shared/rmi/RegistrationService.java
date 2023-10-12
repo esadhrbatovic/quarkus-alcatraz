@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.shared.rmi;
 
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -12,15 +12,13 @@ public interface RegistrationService extends Remote, Serializable {
 
     int getLobbySize() throws RemoteException;
 
-    Session<NetPlayer> registerMe(NetPlayer player) throws RemoteException;
+    GameSession<NetPlayer> registerMe(NetPlayer player) throws RemoteException;
 
+    GameSession<NetPlayer> unregister(NetPlayer player) throws RemoteException;
 
-    Session<NetPlayer> unregister(NetPlayer player) throws RemoteException;
+    void joinSession(NetPlayer player) throws RemoteException;
 
-    void ready(NetPlayer player) throws RemoteException;
+    void leaveSession(NetPlayer player) throws RemoteException;
 
-
-    void undoReady(NetPlayer player) throws RemoteException;
-
-    Session<NetPlayer> getSession()  throws RemoteException;
+    GameSession<NetPlayer> getGameSession()  throws RemoteException;
 }

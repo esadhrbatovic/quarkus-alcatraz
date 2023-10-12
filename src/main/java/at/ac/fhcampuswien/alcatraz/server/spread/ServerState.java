@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server.spread;
 
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
-import at.ac.fhcampuswien.alcatraz.shared.model.Session;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.inject.Singleton;
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class ServerState implements Serializable {
     boolean isPrimary;
     Integer serverId;
-    Session<NetPlayer> session;
+    GameSession<NetPlayer> gameSession = new GameSession<>();
 
     public boolean isPrimary() {
         return isPrimary;
@@ -28,8 +28,8 @@ public class ServerState implements Serializable {
         this.serverId = serverId;
     }
 
-    public Session<NetPlayer> getSession() {
-        return session;
+    public GameSession<NetPlayer> getSession() {
+        return gameSession;
     }
 
     @Override
@@ -37,11 +37,11 @@ public class ServerState implements Serializable {
         return "ServerState{" +
                 "isPrimary=" + isPrimary +
                 ", serverId=" + serverId +
-                ", session=" + session +
+                ", session=" + gameSession +
                 '}';
     }
 
-    public void setSession(Session<NetPlayer> session) {
-        this.session = session;
+    public void setSession(GameSession<NetPlayer> gameSession) {
+        this.gameSession = gameSession;
     }
 }

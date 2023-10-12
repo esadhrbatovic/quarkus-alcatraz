@@ -14,7 +14,7 @@ public interface RegistrationService extends Remote, Serializable {
 
     GameSession<NetPlayer> registerMe(NetPlayer player) throws RemoteException;
 
-    GameSession<NetPlayer> unregister(NetPlayer player) throws RemoteException;
+    void logOff(NetPlayer player) throws RemoteException;
 
     void joinSession(NetPlayer player) throws RemoteException;
 

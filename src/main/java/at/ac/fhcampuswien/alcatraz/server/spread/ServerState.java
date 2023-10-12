@@ -11,7 +11,6 @@ public class ServerState implements Serializable {
     boolean isPrimary;
     Integer serverId;
     GameSession<NetPlayer> gameSession = new GameSession<>();
-
     public boolean isPrimary() {
         return isPrimary;
     }

@@ -14,7 +14,7 @@ public class Menu<T> {
 
     private String title;
 
-    private List<MenuEntry<T>> menuEntries;
+    private final List<MenuEntry<T>> menuEntries;
 
     public Menu(String title) {
         menuEntries = new ArrayList<>();

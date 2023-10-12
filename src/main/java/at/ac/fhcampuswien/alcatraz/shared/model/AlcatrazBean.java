@@ -7,7 +7,7 @@ import jakarta.inject.Singleton;
 
 import java.io.Serial;
 import java.io.Serializable;
-
+//maybe not needed
 @Singleton
 public class AlcatrazBean extends Alcatraz implements Serializable {
     @Serial

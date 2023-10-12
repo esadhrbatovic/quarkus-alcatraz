@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Objects;
 import java.util.UUID;
@@ -50,9 +49,9 @@ public class ClientController {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 
-    public void unregister(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
+    public void logOff(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
         NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.unregister(remotePlayer);
+        registrationService.logOff(remotePlayer);
     }
 
     public void joinSession(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {

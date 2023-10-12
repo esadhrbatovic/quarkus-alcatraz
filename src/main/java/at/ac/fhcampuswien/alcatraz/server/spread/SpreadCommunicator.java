@@ -3,13 +3,10 @@ package at.ac.fhcampuswien.alcatraz.server.spread;
 import at.ac.fhcampuswien.alcatraz.server.spread.service.SpreadMessageHandler;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
-import at.ac.fhcampuswien.alcatraz.server.spread.enums.SpreadMessageType;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,8 +16,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Random;
 
 import org.jboss.logging.Logger;
@@ -52,16 +47,12 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     public void regularMessageReceived(SpreadMessage spreadMessage) {
         log.info("Received Message");
         try {
-            System.out.println("Spreader's object  " + getObject(spreadMessage.getData()));
-        } catch (SpreadException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (Objects.equals(SpreadMessageType.valueOfLabel(spreadMessage.getType()), SpreadMessageType.SYNC)) {
-                if(getObject(spreadMessage.getData()) instanceof GameSession){
-                    log.info("Got Lobby Object to sync!");
-                    log.info((GameSession) getObject(spreadMessage.getData()));
-                    spreadMessageHandler.handleSyncSession((GameSession) getObject(spreadMessage.getData()));
+            if (spreadMessage.getType() == 1) { //sync
+                Object object = getObject(spreadMessage.getData());
+                if(object instanceof GameSession){
+                    log.info("Recieved GameSession Object");
+                    log.info((GameSession) object);
+                    spreadMessageHandler.handleSyncSession((GameSession) object);
                 }
 
             }
@@ -91,9 +82,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
             int privateName = random.nextInt(99999);
             InetAddress hostName = InetAddress.getByName(spreadServer);
             int port = 0;
-            // Priority Connection or not -> In our case true
             boolean priority = true;
-            //  Set group_membership flag to true so membership messages can be sent after connection
             boolean groupMembership = true;
 
             connection.connect(hostName, port, Integer.toString(privateName), priority, groupMembership);
@@ -113,7 +102,6 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
 
     public SpreadGroupBean spreadGroup() {
         SpreadGroupBean spreadGroup = new SpreadGroupBean();
-
         try {
             spreadGroup.join(spreadConnection(), "group");
         } catch (SpreadException e) {
@@ -123,7 +111,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
         return spreadGroup;
     }
 
-    public Object getObject(byte[] data) throws SpreadException {
+    private Object getObject(byte[] data) throws SpreadException {
         ByteArrayInputStream var1 = new ByteArrayInputStream(data);
 
         ObjectInputStream var2;
@@ -136,10 +124,8 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
         Object var3;
         try {
             var3 = var2.readObject();
-        } catch (ClassNotFoundException var6) {
+        } catch (ClassNotFoundException | IOException var6) {
             throw new SpreadException("readObject(): " + var6);
-        } catch (IOException var7) {
-            throw new SpreadException("readObject(): " + var7);
         }
 
         try {

@@ -4,7 +4,6 @@ import at.ac.fhcampuswien.alcatraz.server.spread.RmiServer;
 import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
-import at.ac.fhcampuswien.alcatraz.server.spread.enums.SpreadMessageType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jboss.logging.Logger;
@@ -17,9 +16,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Singleton
 public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializable {
@@ -45,7 +42,6 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
                   Determines if primary is gone -> Determine new primary
                  */
                 log.error("Someone disconnected from the Spread Group!");
-                // TODO: Fault Tolerance - Someone disconnected! What about .isCausedByNetwork()?
                 votePrimaryAndSync(connection, group, spreadMessage, true);
             }
             if (spreadMessage.getMembershipInfo().isCausedByLeave()) {
@@ -68,15 +64,12 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
              */
             log.info("Someone joined the Spread Group!");
             log.info("Determining if primary or backup");
-
-
             votePrimaryAndSync(connection, group, spreadMessage, false);
 
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
         }
         log.info("------------------------------------");
-
     }
 
     @Override
@@ -86,9 +79,8 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
 
             SpreadMessage message = new SpreadMessage();
             message.setObject(gameSession);
-            message.setType(SpreadMessageType.SYNC.getNumVal());
+            message.setType((short)1); // sync
             message.addGroup(group);
-
             message.setSafe();
 
             connection.multicast(message);
@@ -132,5 +124,4 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     private int getIdOfMember(String name) {
         return Integer.parseInt(name.split("#")[1]);
     }
-
 }

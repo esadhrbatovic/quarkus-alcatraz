@@ -11,7 +11,7 @@ public class ClientApplication implements QuarkusApplication{
     CommandLineInterface cli;
 
     @Override
-    public int run(String... args) throws Exception {
+    public int run(String... args) {
         cli.start();
         return 0;
     }

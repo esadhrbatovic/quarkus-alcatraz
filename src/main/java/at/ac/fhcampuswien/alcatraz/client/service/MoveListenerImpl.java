@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
 
-import at.ac.fhcampuswien.alcatraz.shared.model.CustomMoveListener;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.falb.games.alcatraz.api.IllegalMoveException;
 import at.falb.games.alcatraz.api.MoveListener;
@@ -60,7 +59,6 @@ public class MoveListenerImpl implements MoveListener {
         System.out.println("The connection between players is not possible. System tried" + countRemoteExceptions + "times.");
         try {
             Thread.sleep(TIME_TO_RETRY_CONNECTION);
-
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }

@@ -4,6 +4,7 @@ import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException
 import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -12,7 +13,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Objects;
 
-@Singleton
+@ApplicationScoped
 public class GameSessionService implements Serializable {
 
     @Serial
@@ -20,6 +21,7 @@ public class GameSessionService implements Serializable {
     @Inject
     ServerState serverState;
 
+    //TODO: make configurable
     static int MIN_PLAYERS = 2;
     static int MAX_PLAYERS = 4;
     boolean gameRunning = false;

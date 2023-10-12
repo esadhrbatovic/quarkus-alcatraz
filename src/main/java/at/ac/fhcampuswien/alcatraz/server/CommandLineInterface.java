@@ -15,13 +15,14 @@ public class CommandLineInterface {
         Menu<Runnable> menu = new Menu<>("Server Interface");
         menu.setTitle("Choose an option:");
 
-        menu.insert("a", "Print Server State", this::printServerState);
-        menu.insert("q", "Quit", null);
+        menu.insert("1", "Print Server State", this::printServerState);
+        menu.insert("0", "Quit", null);
         Runnable choice;
 
         while ((choice = menu.exec()) != null) {
             choice.run();
         }
+
         System.out.println("Program finished");
         System.exit(0);
 

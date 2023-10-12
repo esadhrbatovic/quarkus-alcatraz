@@ -11,6 +11,4 @@ import java.io.Serializable;
 public class SpreadGroupBean extends SpreadGroup implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
-
 }

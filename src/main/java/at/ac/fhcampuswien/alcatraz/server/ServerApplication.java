@@ -21,9 +21,9 @@ public class ServerApplication implements  QuarkusApplication{
     RmiServer rmiServer;
 
     @Override
-    public int run(String... args) throws Exception {
+    public int run(String... args) {
         rmiServer.setRegistrationService(registrationService);
-        //cli.start();
+        cli.start();
         return 0;
     }
 }

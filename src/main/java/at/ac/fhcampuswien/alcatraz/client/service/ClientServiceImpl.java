@@ -33,11 +33,6 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     }
 
     @Override
-    public void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws RemoteException, IllegalMoveException {
-        this.alcatraz.doMove(player, prisoner, rowOrCol, row, col);
-    }
-
-    @Override
     public void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException {
         this.alcatraz.init(players.size(), localPlayer.getId());
         players.forEach(remotePlayer -> this.alcatraz.getPlayer(remotePlayer.getId())

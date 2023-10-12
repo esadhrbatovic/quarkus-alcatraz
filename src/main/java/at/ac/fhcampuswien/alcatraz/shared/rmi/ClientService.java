@@ -12,8 +12,6 @@ import java.rmi.RemoteException;
 
 public interface ClientService extends Remote {
 
-    void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws RemoteException, IllegalMoveException;
-
     void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException;
 
     void closeGame() throws RemoteException;

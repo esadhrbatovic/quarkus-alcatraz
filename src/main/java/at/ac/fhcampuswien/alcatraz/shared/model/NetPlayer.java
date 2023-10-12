@@ -19,7 +19,7 @@ public class NetPlayer extends Player implements Serializable {
         super(id);
         try {
             this.clientService = (ClientService) LocateRegistry.getRegistry(1098)
-                    .lookup("ClientService"+ serviceIdentifier);
+                    .lookup("ClientService" + serviceIdentifier);
         } catch (NotBoundException e) {
             throw new NotBoundException("The service could not be found on the server.");
         }

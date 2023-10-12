@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
-import at.ac.fhcampuswien.alcatraz.server.spread.RmiServer;
-import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
+import at.ac.fhcampuswien.alcatraz.server.RmiServer;
+import at.ac.fhcampuswien.alcatraz.server.ServerState;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.inject.Inject;
@@ -79,7 +79,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
 
             SpreadMessage message = new SpreadMessage();
             message.setObject(gameSession);
-            message.setType((short)1); // sync
+            message.setType((short) 1); // sync
             message.addGroup(group);
             message.setSafe();
 
@@ -116,7 +116,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
 
 
         log.info(this.serverState.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
-        if(this.serverState.isPrimary()){
+        if (this.serverState.isPrimary()) {
             this.rmiServer.registerRMIEndpoint();
         }
     }

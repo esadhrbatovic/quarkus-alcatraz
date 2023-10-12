@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.server.spread;
 
+import at.ac.fhcampuswien.alcatraz.server.ServerState;
 import at.ac.fhcampuswien.alcatraz.server.spread.service.SpreadMessageHandler;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
@@ -51,12 +52,13 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
                 Object object = getObject(spreadMessage.getData());
                 if(object instanceof GameSession){
                     log.info("Recieved GameSession Object");
-                    log.info((GameSession) object);
+                    log.info(object);
                     spreadMessageHandler.handleSyncSession((GameSession) object);
                 }
 
             }
         } catch (SpreadException e) {
+            //TODO: handle properly
             e.printStackTrace();
         }
     }

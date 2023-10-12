@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server.service;
 
 import at.ac.fhcampuswien.alcatraz.server.GameSessionService;
-import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
+import at.ac.fhcampuswien.alcatraz.server.ServerState;
 import at.ac.fhcampuswien.alcatraz.server.spread.SpreadCommunicator;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;

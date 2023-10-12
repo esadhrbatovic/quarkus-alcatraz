@@ -13,19 +13,16 @@ public class RegistryProvider {
 
     public static Registry getOrCreateRegistry(int port) {
         Registry registry;
-        //try {
-        //    registry = LocateRegistry.getRegistry(port);
-        //} catch (RemoteException e) {
+        try {
+            registry = LocateRegistry.createRegistry(port);
+        } catch (RemoteException ex) {
             try {
-                registry = LocateRegistry.createRegistry(port);
-            } catch (RemoteException ex) {
-                try {
-                    registry = LocateRegistry.getRegistry(port);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
+                registry = LocateRegistry.getRegistry(port);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
-        //}
+        }
+
         return registry;
     }
 }

@@ -6,7 +6,6 @@ import at.falb.games.alcatraz.api.IllegalMoveException;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
-
 import org.jboss.logging.Logger;
 
 import java.rmi.RemoteException;
@@ -35,7 +34,7 @@ public class MoveListenerImpl implements MoveListener {
                 .stream()
                 .filter(remotePlayer -> remotePlayer.getId() != player.getId()).toList();
 
-        for (NetPlayer rp: otherPlayers) {
+        for (NetPlayer rp : otherPlayers) {
             log.error("syncing move for player " + rp.getName());
             boolean connectionWithoutException = false;
             int countRemoteExceptions = 0;
@@ -55,6 +54,7 @@ public class MoveListenerImpl implements MoveListener {
             }
         }
     }
+
     public static void handleRMIException(int countRemoteExceptions) {
         System.out.println("The connection between players is not possible. System tried" + countRemoteExceptions + "times.");
         try {

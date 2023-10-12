@@ -13,12 +13,10 @@ import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-
 
 @ApplicationScoped
 public class ClientServiceImpl extends UnicastRemoteObject implements ClientService, Serializable {

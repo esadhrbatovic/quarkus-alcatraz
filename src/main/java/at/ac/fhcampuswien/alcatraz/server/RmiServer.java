@@ -3,11 +3,11 @@
  * All rights reserved.
  *
  */
-package at.ac.fhcampuswien.alcatraz.server.spread;
+package at.ac.fhcampuswien.alcatraz.server;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+
 import jakarta.inject.Singleton;
 
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
@@ -21,7 +21,7 @@ import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistryProvider;
 public class RmiServer {
     RegistrationService registrationService;
 
-    public void registerRMIEndpoint(){
+    public void registerRMIEndpoint() {
         try {
             Registry registry = RegistryProvider.getOrCreateRegistry(1099);
             registry.rebind("RegistrationService", registrationService);

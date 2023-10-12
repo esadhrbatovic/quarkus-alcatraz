@@ -12,6 +12,7 @@ import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistryProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -37,7 +38,7 @@ public class ClientController {
             int id = registrationService.getLobbySize();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
             UUID remoteIdentifier = UUID.randomUUID();
-            registry.bind("ClientService"+ remoteIdentifier, clientService);
+            registry.bind("ClientService" + remoteIdentifier, clientService);
             NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
             this.gameSession = registrationService.registerMe(localPlayer);
         } catch (AlreadyBoundException e) {
@@ -82,6 +83,8 @@ public class ClientController {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-    };
+    }
+
+    ;
 
 }

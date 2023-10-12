@@ -1,12 +1,11 @@
 package at.ac.fhcampuswien.alcatraz.server;
-import at.ac.fhcampuswien.alcatraz.server.spread.ServerState;
+
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -63,7 +62,7 @@ public class GameSessionService implements Serializable {
         findPlayer.setReady(false);
     }
 
-    private void validatePlayerName(String name)  {
+    private void validatePlayerName(String name) {
         this.serverState.getSession()
                 .forEach(remotePlayer -> {
                     if (Objects.equals(remotePlayer.getName(), name)) {
@@ -78,6 +77,7 @@ public class GameSessionService implements Serializable {
             throw new FullSessionException("The lobby is already full.");
         }
     }
+
     private void checkGameRunning() {
     }
 

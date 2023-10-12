@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.alcatraz.server.spread;
+package at.ac.fhcampuswien.alcatraz.server;
 
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
@@ -11,6 +11,7 @@ public class ServerState implements Serializable {
     boolean isPrimary;
     Integer serverId;
     GameSession<NetPlayer> gameSession = new GameSession<>();
+
     public boolean isPrimary() {
         return isPrimary;
     }

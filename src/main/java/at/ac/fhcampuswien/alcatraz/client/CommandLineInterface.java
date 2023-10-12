@@ -52,9 +52,6 @@ public class CommandLineInterface {
                 System.out.print("Enter username:");
                 Scanner scn = new Scanner(System.in);
                 String input = scn.nextLine();
-
-                //String input = RandomStringGenerator.generateRandomString(8);
-
                 clientController.register(input);
                 this.username = input;
                 System.out.println("registered user: " + this.username);

@@ -6,6 +6,7 @@ class MenuEntry<T> {
         text = t;
         element = r;
     }
+
     protected String key;
     protected String text;
     protected T element;

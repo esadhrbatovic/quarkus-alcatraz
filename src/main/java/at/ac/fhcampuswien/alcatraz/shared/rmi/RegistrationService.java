@@ -12,7 +12,7 @@ public interface RegistrationService extends Remote, Serializable {
 
     int getLobbySize() throws RemoteException;
 
-    GameSession<NetPlayer> registerMe(NetPlayer player) throws RemoteException;
+    GameSession<NetPlayer> register(NetPlayer player) throws RemoteException;
 
     void logOff(NetPlayer player) throws RemoteException;
 

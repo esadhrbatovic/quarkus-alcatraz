@@ -40,7 +40,7 @@ public class ClientController {
             UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("ClientService" + remoteIdentifier, clientService);
             NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
-            this.gameSession = registrationService.registerMe(localPlayer);
+            this.gameSession = registrationService.register(localPlayer);
         } catch (AlreadyBoundException e) {
             throw new RuntimeException(e);
         }
@@ -84,7 +84,5 @@ public class ClientController {
             throw new RuntimeException(e);
         }
     }
-
-    ;
 
 }

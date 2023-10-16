@@ -112,7 +112,7 @@ public class CommandLineInterface {
             System.out.println("No user registered");
         } else {
             try {
-                clientController.renameSession(this.username);
+                clientController.leaveSession(this.username);
                 System.out.println("Your player now has the status 'not ready'.");
             } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());

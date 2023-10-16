@@ -14,9 +14,6 @@ import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.util.Random;
 
 import org.jboss.logging.Logger;
@@ -26,10 +23,13 @@ import spread.*;
 public class SpreadCommunicator implements AdvancedMessageListener, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Inject
     SpreadMessageHandler spreadMessageHandler;
+
     @Inject
     ServerState serverState;
+
     @ConfigProperty(name = "spread-server")
     String spreadServer;
 
@@ -39,27 +39,28 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     private static final Logger log = Logger.getLogger(SpreadCommunicator.class);
 
     @PostConstruct
-    public void initSpread(){
-        this.spreadConnection = spreadConnection();
-        this.spreadGroup = spreadGroup();
+    public void initSpread() {
+        this.spreadConnection = establishSpreadConnection();
+        this.spreadGroup = joinSpreadGroup();
     }
 
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
-        log.info("Received Message");
-        try {
-            if (spreadMessage.getType() == 1) { //sync
-                Object object = getObject(spreadMessage.getData());
-                if(object instanceof GameSession){
-                    log.info("Recieved GameSession Object");
-                    log.info(object);
-                    spreadMessageHandler.handleSyncSession((GameSession) object);
-                }
+        if (spreadMessage.getType() == 1) { //sync
+            handleSyncMessage(spreadMessage);
+        }
+    }
 
+    private void handleSyncMessage(SpreadMessage spreadMessage) {
+        try {
+            Object object = deserializeObject(spreadMessage.getData());
+            if (object instanceof GameSession) {
+                log.info("Recieved GameSession Object");
+                log.info(object);
+                spreadMessageHandler.handleSyncSession((GameSession) object);
             }
         } catch (SpreadException e) {
-            //TODO: handle properly
-            e.printStackTrace();
+            log.error("Error handling sync message", e);
         }
     }
 
@@ -67,51 +68,46 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     public void membershipMessageReceived(SpreadMessage spreadMessage) {
         try {
             spreadMessageHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
-        } catch (RemoteException | AlreadyBoundException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            log.error("Error handling membership message", e);
         }
     }
 
     public void sendMessageToSpread(GameSession<NetPlayer> session) {
-        spreadMessageHandler.syncSession(spreadConnection, spreadGroup, session);
+        spreadMessageHandler.syncGameSessionWithGroup(spreadConnection, spreadGroup, session);
     }
 
-    public SpreadConnectionBean spreadConnection() {
+    private SpreadConnectionBean establishSpreadConnection() {
         SpreadConnectionBean connection = new SpreadConnectionBean();
-
         try {
-            Random random = new Random();
-            int privateName = random.nextInt(99999);
+            int privateName = generatePrivateName();
             InetAddress hostName = InetAddress.getByName(spreadServer);
-            int port = 0;
-            boolean priority = true;
-            boolean groupMembership = true;
-
-            connection.connect(hostName, port, Integer.toString(privateName), priority, groupMembership);
-            log.info("creating spreadConnection " + Integer.toString(privateName) + " " + priority + " " + groupMembership);
+            connection.connect(hostName, 0, Integer.toString(privateName), true, true);
             this.serverState.setServerId(privateName);
-        } catch (UnknownHostException | SpreadException e) {
-            log.error("Could not establish connection with Spread. Please start spread first and make sure it can be resolved, then restart the game server.");
-
+        } catch (Exception e) {
+            log.error("Error establishing Spread connection", e);
             System.exit(0);
         }
         connection.add(this);
         return connection;
     }
 
-
-    public SpreadGroupBean spreadGroup() {
-        SpreadGroupBean spreadGroup = new SpreadGroupBean();
-        try {
-            spreadGroup.join(spreadConnection(), "group");
-        } catch (SpreadException e) {
-            log.error("Could not join the Spread Group. Please make sure the spread server is running and the group is created.");
-            System.exit(0);
-        }
-        return spreadGroup;
+    private int generatePrivateName() {
+        return new Random().nextInt(99999);
     }
 
-    private Object getObject(byte[] data) throws SpreadException {
+    private SpreadGroupBean joinSpreadGroup() {
+        SpreadGroupBean group = new SpreadGroupBean();
+        try {
+            group.join(spreadConnection, "group");
+        } catch (SpreadException e) {
+            log.error("Error joining Spread group", e);
+            System.exit(0);
+        }
+        return group;
+    }
+
+    private Object deserializeObject(byte[] data) throws SpreadException {
         ByteArrayInputStream var1 = new ByteArrayInputStream(data);
 
         ObjectInputStream var2;

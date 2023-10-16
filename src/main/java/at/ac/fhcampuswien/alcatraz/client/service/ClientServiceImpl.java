@@ -26,6 +26,9 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     @Inject
     MoveListener moveListener;
 
+    @Inject
+    ClientController clientController;
+
     AlcatrazBean alcatraz = new AlcatrazBean();
 
     protected ClientServiceImpl() throws RemoteException {
@@ -33,9 +36,10 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     }
 
     @Override
-    public void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException {
-        this.alcatraz.init(players.size(), localPlayer.getId());
-        players.forEach(netPlayer -> this.alcatraz.getPlayer(netPlayer.getId())
+    public void startGame(GameSession<NetPlayer> gameSession, NetPlayer localPlayer) throws RemoteException {
+        clientController.setGameSession(gameSession);
+        this.alcatraz.init(gameSession.size(), localPlayer.getId());
+        gameSession.forEach(netPlayer -> this.alcatraz.getPlayer(netPlayer.getId())
                 .setName(netPlayer.getName()));
         this.alcatraz.addMoveListener(moveListener);
         this.alcatraz.showWindow();

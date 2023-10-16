@@ -13,7 +13,7 @@ public interface SpreadMessageHandler {
 
     void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) throws RemoteException, AlreadyBoundException;
 
-    void syncSession(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession);
+    void syncGameSessionWithGroup(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession);
 
     void handleSyncSession(GameSession<NetPlayer> gameSession);
 }

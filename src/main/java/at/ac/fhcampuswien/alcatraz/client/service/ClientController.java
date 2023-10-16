@@ -58,7 +58,7 @@ public class ClientController {
         registrationService.logOff(netPlayer);
     }
 
-    public void renameSession(String name) throws RemoteException, AlcatrazException {
+    public void leaveSession(String name) throws RemoteException, AlcatrazException {
         NetPlayer netPlayer = findPlayerBy(name);
         registrationService.leaveSession(netPlayer);
     }
@@ -75,12 +75,11 @@ public class ClientController {
     }
 
 
-    GameSession<NetPlayer> getGameSession() {
-        try {
-            return registrationService.getGameSession();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    public GameSession<NetPlayer> getGameSession() {
+        return this.gameSession;
     }
 
+    public void setGameSession(GameSession<NetPlayer> gameSession) {
+        this.gameSession = gameSession;
+    }
 }

@@ -24,6 +24,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     private static final long serialVersionUID = 1L;
 
     private static final Logger log = Logger.getLogger(SpreadMessageHandlerImpl.class);
+
     @Inject
     ServerState serverState;
 
@@ -32,57 +33,42 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
 
     @Override
     public void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) throws RemoteException, AlreadyBoundException {
-        log.info("------------------------------------");
+        log.info("Handling membership message...");
 
-        try {
-            if (spreadMessage.getMembershipInfo().isCausedByDisconnect()) {
-                /*
-                  Handles Disconnect of a Registration Server
-                  Unintended Disconnect/Network Timeout?
-                  Determines if primary is gone -> Determine new primary
-                 */
-                log.error("Someone disconnected from the Spread Group!");
-                votePrimaryAndSync(connection, group, spreadMessage, true);
-            }
-            if (spreadMessage.getMembershipInfo().isCausedByLeave()) {
-                /*
-                  Handles Leave of a Registration Server
-                  Intended Leave of the Group
-                  If primary gone -> Determine new primary!
-                 */
-                log.info("Someone left the Spread Group!");
-                log.info("Checking primary/backup state of Server...");
-                votePrimaryAndSync(connection, group, spreadMessage, true);
-            }
-            if (!spreadMessage.getMembershipInfo().isCausedByJoin()) {
-                log.debug("Got Membership Message, which cannot be handled!");
-                return;
-            }
-            /*
-              Handles join of a Registration Server to the Spread Group
-              Determine the primary/backup Server Role here
-             */
-            log.info("Someone joined the Spread Group!");
-            log.info("Determining if primary or backup");
-            votePrimaryAndSync(connection, group, spreadMessage, false);
-
-        } catch (RuntimeException e) {
-            log.error(e.getMessage(), e);
+        if (spreadMessage.getMembershipInfo().isCausedByDisconnect()) {
+            handleDisconnect(connection, group, spreadMessage);
+        } else if (spreadMessage.getMembershipInfo().isCausedByLeave()) {
+            handleLeave(connection, group, spreadMessage);
+        } else if (spreadMessage.getMembershipInfo().isCausedByJoin()) {
+            handleJoin(connection, group, spreadMessage);
+        } else {
+            log.debug("Unhandled membership message type.");
         }
-        log.info("------------------------------------");
     }
 
-    @Override
-    public void syncSession(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {
+    private void handleDisconnect(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
+        log.error("Someone disconnected from the Spread Group!");
+        determinePrimaryOrBackup(connection, group, spreadMessage, true);
+    }
+
+    private void handleLeave(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
+        log.info("Someone left the Spread Group!");
+        determinePrimaryOrBackup(connection, group, spreadMessage, true);
+    }
+
+    private void handleJoin(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
+        log.info("Someone joined the Spread Group!");
+        determinePrimaryOrBackup(connection, group, spreadMessage, false);
+    }
+
+    public void syncGameSessionWithGroup(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {
         try {
             log.info("Sending GameSession to all");
-
             SpreadMessage message = new SpreadMessage();
             message.setObject(gameSession);
             message.setType((short) 1); // sync
             message.addGroup(group);
             message.setSafe();
-
             connection.multicast(message);
         } catch (SpreadException e) {
             log.error("Could not send object to Spread Group...", e);
@@ -94,31 +80,52 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
         this.serverState.setSession(gameSession);
     }
 
-    private void votePrimaryAndSync(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage, boolean someoneLeft) {
-        // Check if any members in Group
-        if (spreadMessage.getMembershipInfo().getMembers().length == 1) {
-            // No one else except you in group and nothing to sync
-            this.serverState.setPrimary(true);
+    private void determinePrimaryOrBackup(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage, boolean someoneLeft) {
+        if (isOnlyMemberInGroup(spreadMessage)) {
+            setAsPrimary();
         } else {
+            determineRoleBasedOnHighestId(spreadMessage);
             if (this.serverState.isPrimary() && !someoneLeft) {
-                // Before voting - sync GameSession State to all again (also for the newly joined one)
-                //log.info("As current Primary: Syncing GameSession to newly joined Server.");
-                syncSession(connection, group, this.serverState.getSession());
+                syncSessionToGroup(connection, group);
             }
-            // Now vote for new Primary based on highest ID
-            // Could never throw exception since there is always 1 Member in the group -> Should not come up!
-            var maxId = Arrays.stream(spreadMessage.getMembershipInfo().getMembers())
-                    .mapToInt(item -> getIdOfMember(item.toString()))
-                    .max()
-                    .orElseThrow(() -> new RuntimeException("Could not determine primary/backup state of the new Server"));
-            this.serverState.setPrimary(this.serverState.getServerId() == maxId);
         }
-
-
-        log.info(this.serverState.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
+        logServerRole();
         if (this.serverState.isPrimary()) {
-            this.rmiServer.registerRMIEndpoint();
+            registerRMIEndpoint();
         }
+    }
+
+    private boolean isOnlyMemberInGroup(SpreadMessage spreadMessage) {
+        return spreadMessage.getMembershipInfo().getMembers().length == 1;
+    }
+
+    private void setAsPrimary() {
+        this.serverState.setPrimary(true);
+    }
+
+    private void determineRoleBasedOnHighestId(SpreadMessage spreadMessage) {
+        int highestId = getHighestIdFromMembers(spreadMessage);
+        boolean isPrimary = this.serverState.getServerId() == highestId;
+        this.serverState.setPrimary(isPrimary);
+    }
+
+    private int getHighestIdFromMembers(SpreadMessage spreadMessage) {
+        return Arrays.stream(spreadMessage.getMembershipInfo().getMembers())
+                .mapToInt(item -> getIdOfMember(item.toString()))
+                .max()
+                .orElseThrow(() -> new RuntimeException("Could not determine primary/backup state of the new Server"));
+    }
+
+    private void logServerRole() {
+        log.info(this.serverState.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
+    }
+
+    private void registerRMIEndpoint() {
+        this.rmiServer.registerRMIEndpoint();
+    }
+
+    private void syncSessionToGroup(SpreadConnection connection, SpreadGroup group) {
+        syncGameSessionWithGroup(connection, group, this.serverState.getSession());
     }
 
     private int getIdOfMember(String name) {

@@ -92,15 +92,13 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
             this.serverState.setServerId(privateName);
         } catch (UnknownHostException | SpreadException e) {
             log.error("Could not establish connection with Spread. Please start spread first and make sure it can be resolved, then restart the game server.");
-            shutdownServer();
+
+            System.exit(0);
         }
         connection.add(this);
         return connection;
     }
 
-    public void shutdownServer() {
-        System.exit(0);
-    }
 
     public SpreadGroupBean spreadGroup() {
         SpreadGroupBean spreadGroup = new SpreadGroupBean();
@@ -108,7 +106,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
             spreadGroup.join(spreadConnection(), "group");
         } catch (SpreadException e) {
             log.error("Could not join the Spread Group. Please make sure the spread server is running and the group is created.");
-            shutdownServer();
+            System.exit(0);
         }
         return spreadGroup;
     }

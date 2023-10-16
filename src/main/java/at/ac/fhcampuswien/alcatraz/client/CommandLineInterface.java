@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.client;
 
 import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
-import at.ac.fhcampuswien.alcatraz.shared.cli.Menu;
 import at.ac.fhcampuswien.alcatraz.shared.exception.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,22 +22,39 @@ public class CommandLineInterface {
     String username;
 
     public void start() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("User Interface");
+            System.out.println("1. Register on Server");
+            System.out.println("2. Join Game Session");
+            System.out.println("3. Log Off from Server");
+            System.out.println("4. Leave Game Session");
+            System.out.println("0. Quit");
+            System.out.print("Choose an option: ");
 
-        Menu<Runnable> menu = new Menu<>("User Interface");
-        menu.setTitle("Choose an option:");
-        menu.insert("1", "Register on Server", this::register);
-        menu.insert("2", "Join Game Session", this::joinGameSession);
-        menu.insert("3", "Log Off from Server", this::logOff);
-        menu.insert("4", "Leave Game Session", this::leaveGameSession);
-        menu.insert("0", "Quit", null);
-        Runnable choice;
-
-        while ((choice = menu.exec()) != null) {
-            choice.run();
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    register();
+                    break;
+                case 2:
+                    joinGameSession();
+                    break;
+                case 3:
+                    logOff();
+                    break;
+                case 4:
+                    leaveGameSession();
+                    break;
+                case 0:
+                    System.out.println("Program finished");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
-        System.out.println("Program finished");
     }
-
 
     public void register() {
         ensureServerIsAvailableAndPrimary();

@@ -36,7 +36,7 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     }
 
     @Override
-    public int getLobbySize() throws RemoteException {
+    public int getGameSessionSize() throws RemoteException {
         return this.serverState.getSession().size();
     }
 

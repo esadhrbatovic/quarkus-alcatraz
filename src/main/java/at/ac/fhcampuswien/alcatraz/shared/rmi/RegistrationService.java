@@ -8,10 +8,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RegistrationService extends Remote, Serializable {
-    boolean isPrimary() throws RemoteException;
-
-    int getLobbySize() throws RemoteException;
-
     GameSession<NetPlayer> register(NetPlayer player) throws RemoteException;
 
     void logOff(NetPlayer player) throws RemoteException;
@@ -20,5 +16,9 @@ public interface RegistrationService extends Remote, Serializable {
 
     void leaveSession(NetPlayer player) throws RemoteException;
 
+    boolean isPrimary() throws RemoteException;
+
     GameSession<NetPlayer> getGameSession() throws RemoteException;
+
+    int getGameSessionSize() throws RemoteException;
 }

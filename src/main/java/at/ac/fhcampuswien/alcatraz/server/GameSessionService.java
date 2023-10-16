@@ -47,9 +47,9 @@ public class GameSessionService implements Serializable {
                 .stream()
                 .allMatch(NetPlayer::isReady) && this.serverState.getSession()
                 .size() >= MIN_PLAYERS) {
-            for (NetPlayer remotePlayer : this.serverState.getSession()) {
-                remotePlayer.getClientService()
-                        .startGame(this.serverState.getSession(), remotePlayer);
+            for (NetPlayer netPlayer : this.serverState.getSession()) {
+                netPlayer.getClientService()
+                        .startGame(this.serverState.getSession(), netPlayer);
                 this.gameRunning = true;
             }
         }
@@ -63,8 +63,8 @@ public class GameSessionService implements Serializable {
 
     private void validatePlayerName(String name) {
         this.serverState.getSession()
-                .forEach(remotePlayer -> {
-                    if (Objects.equals(remotePlayer.getName(), name)) {
+                .forEach(netPlayer -> {
+                    if (Objects.equals(netPlayer.getName(), name)) {
                         throw new AlcatrazException(Messages.PLAYER_EXISTS);
                     }
                 });

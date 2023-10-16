@@ -35,8 +35,8 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     @Override
     public void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException {
         this.alcatraz.init(players.size(), localPlayer.getId());
-        players.forEach(remotePlayer -> this.alcatraz.getPlayer(remotePlayer.getId())
-                .setName(remotePlayer.getName()));
+        players.forEach(netPlayer -> this.alcatraz.getPlayer(netPlayer.getId())
+                .setName(netPlayer.getName()));
         this.alcatraz.addMoveListener(moveListener);
         this.alcatraz.showWindow();
         this.alcatraz.start();

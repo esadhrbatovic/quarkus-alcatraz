@@ -75,7 +75,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     @Override
     public void syncSession(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {
         try {
-            log.info("Sending lobby State to all");
+            log.info("Sending GameSession to all");
 
             SpreadMessage message = new SpreadMessage();
             message.setObject(gameSession);
@@ -101,8 +101,8 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
             this.serverState.setPrimary(true);
         } else {
             if (this.serverState.isPrimary() && !someoneLeft) {
-                // Before voting - sync Lobby State to all again (also for the newly joined one)
-                //log.info("As current Primary: Syncing Lobby to newly joined Server.");
+                // Before voting - sync GameSession State to all again (also for the newly joined one)
+                //log.info("As current Primary: Syncing GameSession to newly joined Server.");
                 syncSession(connection, group, this.serverState.getSession());
             }
             // Now vote for new Primary based on highest ID

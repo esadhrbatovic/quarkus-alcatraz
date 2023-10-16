@@ -33,7 +33,7 @@ public class ClientController {
 
     public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
         try {
-            int id = registrationService.getLobbySize();
+            int id = registrationService.getGameSessionSize();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
             UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("ClientService" + remoteIdentifier, clientService);
@@ -49,18 +49,18 @@ public class ClientController {
     }
 
     public void joinSession(String name) throws RemoteException, AlcatrazException {
-        NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.joinSession(remotePlayer);
+        NetPlayer netPlayer = findPlayerBy(name);
+        registrationService.joinSession(netPlayer);
     }
 
     public void logOff(String name) throws RemoteException, AlcatrazException {
-        NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.logOff(remotePlayer);
+        NetPlayer netPlayer = findPlayerBy(name);
+        registrationService.logOff(netPlayer);
     }
 
     public void renameSession(String name) throws RemoteException, AlcatrazException {
-        NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.leaveSession(remotePlayer);
+        NetPlayer netPlayer = findPlayerBy(name);
+        registrationService.leaveSession(netPlayer);
     }
 
     private NetPlayer findPlayerBy(String name) {

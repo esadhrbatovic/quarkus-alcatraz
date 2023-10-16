@@ -32,7 +32,7 @@ public class MoveListenerImpl implements MoveListener {
         List<NetPlayer> otherPlayers = this.clientController
                 .getGameSession()
                 .stream()
-                .filter(remotePlayer -> remotePlayer.getId() != player.getId()).toList();
+                .filter(netPlayer -> netPlayer.getId() != player.getId()).toList();
 
         for (NetPlayer rp : otherPlayers) {
             log.error("syncing move for player " + rp.getName());
@@ -68,9 +68,9 @@ public class MoveListenerImpl implements MoveListener {
     private void handleQuitGame() {
         this.clientController
                 .getGameSession()
-                .forEach(remotePlayer -> {
+                .forEach(netPlayer -> {
                     try {
-                        remotePlayer.getClientService().quitGame();
+                        netPlayer.getClientService().quitGame();
                     } catch (RemoteException e) {
                         log.error("Aborting the game was not possible on all players.");
                     }
@@ -79,16 +79,16 @@ public class MoveListenerImpl implements MoveListener {
 
     @Override
     public void gameWon(Player player) {
-        // todo empty lobby, restart
+        // todo empty GameSession, restart
         new Timer().schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
                         clientController
                                 .getGameSession()
-                                .forEach(remotePlayer -> {
+                                .forEach(netPlayer -> {
                                     try {
-                                        remotePlayer.getClientService().closeGame();
+                                        netPlayer.getClientService().closeGame();
                                     } catch (RemoteException e) {
                                         throw new RuntimeException("The synchronization of closing the games on all players failed.");
                                     }

@@ -1,6 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.shared.rmi;
 
-import at.ac.fhcampuswien.alcatraz.shared.exception.TimeOutException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.falb.games.alcatraz.api.IllegalMoveException;
@@ -18,6 +18,6 @@ public interface ClientService extends Remote {
 
     void quitGame() throws RemoteException;
 
-    void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws TimeOutException, IllegalMoveException, RemoteException;
+    void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException;
 
 }

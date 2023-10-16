@@ -3,7 +3,7 @@
  * All rights reserved.
  *
  */
-package at.ac.fhcampuswien.alcatraz.server;
+package at.ac.fhcampuswien.alcatraz.server.rmi;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;

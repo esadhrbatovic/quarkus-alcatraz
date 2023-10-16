@@ -1,8 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server;
 
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -66,7 +65,7 @@ public class GameSessionService implements Serializable {
         this.serverState.getSession()
                 .forEach(remotePlayer -> {
                     if (Objects.equals(remotePlayer.getName(), name)) {
-                        throw new PlayerAlreadyExistsException("This player name is already taken.");
+                        throw new AlcatrazException(Messages.PLAYER_EXISTS);
                     }
                 });
     }
@@ -74,7 +73,7 @@ public class GameSessionService implements Serializable {
     private void validatePlayerCount() {
         if (this.serverState.getSession()
                 .size() >= MAX_PLAYERS) {
-            throw new FullSessionException("The lobby is already full.");
+            throw new AlcatrazException(Messages.SESSION_FULL);
         }
     }
 
@@ -86,7 +85,7 @@ public class GameSessionService implements Serializable {
                 .stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException("The player could not be found."));
+                .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));
     }
 
 }

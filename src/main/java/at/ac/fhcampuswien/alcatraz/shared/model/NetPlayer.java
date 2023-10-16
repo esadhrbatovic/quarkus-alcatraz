@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.shared.model;
 
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
+import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistryProvider;
 import at.falb.games.alcatraz.api.Player;
 
 import java.io.Serializable;

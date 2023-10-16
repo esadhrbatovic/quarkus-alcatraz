@@ -2,10 +2,7 @@ package at.ac.fhcampuswien.alcatraz.client;
 
 import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
 import at.ac.fhcampuswien.alcatraz.shared.cli.Menu;
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.GameRunningException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -55,7 +52,7 @@ public class CommandLineInterface {
                 clientController.register(input);
                 this.username = input;
                 System.out.println("registered user: " + this.username);
-            } catch (PlayerAlreadyExistsException | GameRunningException | FullSessionException e) {
+            } catch (AlcatrazException e) {
                 System.out.println(e.getMessage());
             } catch (NotBoundException | RemoteException e) {
                 throw new RuntimeException(e);
@@ -73,7 +70,7 @@ public class CommandLineInterface {
                 clientController.logOff(this.username);
                 this.username = null;
                 System.out.println("You have successfully logged off.");
-            } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
+            } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -87,7 +84,7 @@ public class CommandLineInterface {
             try {
                 clientController.joinSession(this.username);
                 System.out.println("You have joined the Game Session. Please wait until other players join");
-            } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
+            } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -101,7 +98,7 @@ public class CommandLineInterface {
             try {
                 clientController.renameSession(this.username);
                 System.out.println("Your player now has the status 'not ready'.");
-            } catch (RemoteException | PlayerNotFoundException | GameRunningException e) {
+            } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());
             }
         }

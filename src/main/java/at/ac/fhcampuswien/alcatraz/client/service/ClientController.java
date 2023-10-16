@@ -1,10 +1,8 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
 import at.ac.fhcampuswien.alcatraz.client.rmi.RmiClient;
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerAlreadyExistsException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.FullSessionException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.GameRunningException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.PlayerNotFoundException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.*;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
@@ -33,7 +31,7 @@ public class ClientController {
 
     private GameSession<NetPlayer> gameSession;
 
-    public void register(String name) throws RemoteException, PlayerAlreadyExistsException, FullSessionException, GameRunningException, NotBoundException {
+    public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
         try {
             int id = registrationService.getLobbySize();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
@@ -50,17 +48,17 @@ public class ClientController {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 
-    public void logOff(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
-        NetPlayer remotePlayer = findPlayerBy(name);
-        registrationService.logOff(remotePlayer);
-    }
-
-    public void joinSession(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
+    public void joinSession(String name) throws RemoteException, AlcatrazException {
         NetPlayer remotePlayer = findPlayerBy(name);
         registrationService.joinSession(remotePlayer);
     }
 
-    public void renameSession(String name) throws RemoteException, PlayerNotFoundException, GameRunningException {
+    public void logOff(String name) throws RemoteException, AlcatrazException {
+        NetPlayer remotePlayer = findPlayerBy(name);
+        registrationService.logOff(remotePlayer);
+    }
+
+    public void renameSession(String name) throws RemoteException, AlcatrazException {
         NetPlayer remotePlayer = findPlayerBy(name);
         registrationService.leaveSession(remotePlayer);
     }
@@ -69,7 +67,7 @@ public class ClientController {
         return this.gameSession.stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException("The specified player could not be found"));
+                .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));
     }
 
     public RegistrationService getRegistrationService() {

@@ -1,6 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
-import at.ac.fhcampuswien.alcatraz.shared.exception.TimeOutException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
 import at.ac.fhcampuswien.alcatraz.shared.model.AlcatrazBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
@@ -54,7 +54,7 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
     }
 
     @Override
-    public void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws TimeOutException, IllegalMoveException, RemoteException {
+    public void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException {
         this.alcatraz.doMove(player, prisoner, rowOrCol, row, col);
     }
 

@@ -1,6 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
-import at.ac.fhcampuswien.alcatraz.server.RmiServer;
+import at.ac.fhcampuswien.alcatraz.server.rmi.RmiServer;
 import at.ac.fhcampuswien.alcatraz.server.ServerState;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;

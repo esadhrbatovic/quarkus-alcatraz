@@ -70,7 +70,7 @@ public class MoveListenerImpl implements MoveListener {
                 .getGameSession()
                 .forEach(netPlayer -> {
                     try {
-                        netPlayer.getNetGameService().quitGame();
+                        netPlayer.getNetGameService().closeGame();
                     } catch (RemoteException e) {
                         log.error("Aborting the game was not possible on all players.");
                     }

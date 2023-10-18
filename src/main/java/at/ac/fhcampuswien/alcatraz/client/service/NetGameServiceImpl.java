@@ -50,10 +50,6 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
     public void closeGame() throws RemoteException {
         alcatraz.closeWindow();
         alcatraz.disposeWindow();
-    }
-
-    @Override
-    public void quitGame() throws RemoteException {
         Quarkus.waitForExit();
     }
 

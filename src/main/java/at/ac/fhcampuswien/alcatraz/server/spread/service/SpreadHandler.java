@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
 import at.ac.fhcampuswien.alcatraz.server.rmi.RmiServer;
-import at.ac.fhcampuswien.alcatraz.server.ServerState;
+import at.ac.fhcampuswien.alcatraz.server.ServerContext;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.inject.Inject;
@@ -19,20 +19,19 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 
 @Singleton
-public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializable {
+public class SpreadHandler implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = Logger.getLogger(SpreadMessageHandlerImpl.class);
+    private static final Logger log = Logger.getLogger(SpreadHandler.class);
 
     @Inject
-    ServerState serverState;
+    ServerContext serverContext;
 
     @Inject
     RmiServer rmiServer;
 
-    @Override
-    public void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) throws RemoteException, AlreadyBoundException {
+    public void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
         log.info("Handling membership message...");
 
         if (spreadMessage.getMembershipInfo().isCausedByDisconnect()) {
@@ -58,6 +57,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
 
     private void handleJoin(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
         log.info("Someone joined the Spread Group!");
+        log.info("current state of server="+this.serverContext.toString());
         determinePrimaryOrBackup(connection, group, spreadMessage, false);
     }
 
@@ -75,22 +75,21 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
         }
     }
 
-    @Override
     public void handleSyncSession(GameSession<NetPlayer> gameSession) {
-        this.serverState.setSession(gameSession);
+        this.serverContext.setSession(gameSession);
     }
 
     private void determinePrimaryOrBackup(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage, boolean someoneLeft) {
         if (isOnlyMemberInGroup(spreadMessage)) {
             setAsPrimary();
         } else {
-            determineRoleBasedOnHighestId(spreadMessage);
-            if (this.serverState.isPrimary() && !someoneLeft) {
+            if (this.serverContext.isPrimary() && !someoneLeft) {
                 syncSessionToGroup(connection, group);
             }
+            determineRoleBasedOnHighestId(spreadMessage);
         }
         logServerRole();
-        if (this.serverState.isPrimary()) {
+        if (this.serverContext.isPrimary()) {
             registerRMIEndpoint();
         }
     }
@@ -100,13 +99,13 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     }
 
     private void setAsPrimary() {
-        this.serverState.setPrimary(true);
+        this.serverContext.setPrimary(true);
     }
 
     private void determineRoleBasedOnHighestId(SpreadMessage spreadMessage) {
         int highestId = getHighestIdFromMembers(spreadMessage);
-        boolean isPrimary = this.serverState.getServerId() == highestId;
-        this.serverState.setPrimary(isPrimary);
+        boolean isPrimary = this.serverContext.getServerId() == highestId;
+        this.serverContext.setPrimary(isPrimary);
     }
 
     private int getHighestIdFromMembers(SpreadMessage spreadMessage) {
@@ -117,7 +116,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     }
 
     private void logServerRole() {
-        log.info(this.serverState.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
+        log.info(this.serverContext.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
     }
 
     private void registerRMIEndpoint() {
@@ -125,7 +124,7 @@ public class SpreadMessageHandlerImpl implements SpreadMessageHandler, Serializa
     }
 
     private void syncSessionToGroup(SpreadConnection connection, SpreadGroup group) {
-        syncGameSessionWithGroup(connection, group, this.serverState.getSession());
+        syncGameSessionWithGroup(connection, group, this.serverContext.getSession());
     }
 
     private int getIdOfMember(String name) {

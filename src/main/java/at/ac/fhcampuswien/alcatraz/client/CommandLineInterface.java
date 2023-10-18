@@ -57,7 +57,7 @@ public class CommandLineInterface {
     }
 
     public void register() {
-        ensureServerIsAvailableAndPrimary();
+        checkPrimaryIsAvailable();
         if (this.username != null) {
             System.out.println("This user is already registered");
         } else {
@@ -78,7 +78,7 @@ public class CommandLineInterface {
 
 
     private void logOff() {
-        ensureServerIsAvailableAndPrimary();
+        checkPrimaryIsAvailable();
         if (this.username == null) {
             System.out.println("No user registered");
         } else {
@@ -93,7 +93,7 @@ public class CommandLineInterface {
     }
 
     public void joinGameSession() {
-        ensureServerIsAvailableAndPrimary();
+        checkPrimaryIsAvailable();
         if (this.username == null) {
             System.out.println("No user registered");
         } else {
@@ -107,7 +107,7 @@ public class CommandLineInterface {
     }
 
     private void leaveGameSession() {
-        ensureServerIsAvailableAndPrimary();
+        checkPrimaryIsAvailable();
         if (this.username == null) {
             System.out.println("No user registered");
         } else {
@@ -121,19 +121,19 @@ public class CommandLineInterface {
     }
 
 
-    private void findNewPrimary() throws RemoteException {
-        this.clientController.findNewPrimary();
+    private void findPrimary() throws RemoteException {
+        this.clientController.findPrimary();
     }
 
-    private void ensureServerIsAvailableAndPrimary() {
+    private void checkPrimaryIsAvailable() {
         try {
             if (this.clientController.getRegistrationService() == null || !this.clientController.getRegistrationService()
                     .isPrimary()) {
-                findNewPrimary();
+                findPrimary();
             }
         } catch (RemoteException e) {
             try {
-                findNewPrimary();
+                findPrimary();
             } catch (RemoteException ex) {
                 System.out.println("No registration servers available, exiting the game.");
                 log.error(ex.getMessage());

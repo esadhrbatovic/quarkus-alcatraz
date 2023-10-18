@@ -7,7 +7,7 @@ import jakarta.inject.Singleton;
 import java.io.Serializable;
 
 @Singleton
-public class ServerState implements Serializable {
+public class ServerContext implements Serializable {
     boolean isPrimary;
     Integer serverId;
     GameSession<NetPlayer> gameSession = new GameSession<>();
@@ -34,7 +34,7 @@ public class ServerState implements Serializable {
 
     @Override
     public String toString() {
-        return "ServerState{" +
+        return "ServerContext{" +
                 "isPrimary=" + isPrimary +
                 ", serverId=" + serverId +
                 ", session=" + gameSession +

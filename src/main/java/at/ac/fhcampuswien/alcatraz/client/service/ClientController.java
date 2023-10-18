@@ -33,18 +33,18 @@ public class ClientController {
 
     public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
         try {
-            int id = registrationService.getGameSessionSize();
+            int id = registrationService.loadGameSession().size();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
             UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("ClientService" + remoteIdentifier, clientService);
             NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
-            this.gameSession = registrationService.register(localPlayer);
+            registrationService.register(localPlayer);
         } catch (AlreadyBoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void findNewPrimary() throws RemoteException {
+    public void findPrimary() throws RemoteException {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 
@@ -63,8 +63,8 @@ public class ClientController {
         registrationService.leaveSession(netPlayer);
     }
 
-    private NetPlayer findPlayerBy(String name) {
-        return this.gameSession.stream()
+    private NetPlayer findPlayerBy(String name) throws RemoteException {
+        return this.registrationService.loadGameSession().stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
                 .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));

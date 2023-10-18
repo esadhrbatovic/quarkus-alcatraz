@@ -17,7 +17,7 @@ public class GameSessionService implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Inject
-    ServerState serverState;
+    ServerContext serverContext;
 
     //TODO: make configurable
     static int MIN_PLAYERS = 2;
@@ -28,13 +28,13 @@ public class GameSessionService implements Serializable {
         checkGameRunning();
         this.validatePlayerName(player.getName());
         this.validatePlayerCount();
-        this.serverState.getSession()
+        this.serverContext.getSession()
                 .add(player);
     }
 
     public void unregister(NetPlayer player) {
         checkGameRunning();
-        this.serverState.getSession()
+        this.serverContext.getSession()
                 .remove(player);
     }
 
@@ -43,13 +43,13 @@ public class GameSessionService implements Serializable {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReady(true);
-        if (this.serverState.getSession()
+        if (this.serverContext.getSession()
                 .stream()
-                .allMatch(NetPlayer::isReady) && this.serverState.getSession()
+                .allMatch(NetPlayer::isReady) && this.serverContext.getSession()
                 .size() >= MIN_PLAYERS) {
-            for (NetPlayer netPlayer : this.serverState.getSession()) {
+            for (NetPlayer netPlayer : this.serverContext.getSession()) {
                 netPlayer.getClientService()
-                        .startGame(this.serverState.getSession(), netPlayer);
+                        .startGame(this.serverContext.getSession(), netPlayer);
                 this.gameRunning = true;
             }
         }
@@ -62,7 +62,7 @@ public class GameSessionService implements Serializable {
     }
 
     private void validatePlayerName(String name) {
-        this.serverState.getSession()
+        this.serverContext.getSession()
                 .forEach(netPlayer -> {
                     if (Objects.equals(netPlayer.getName(), name)) {
                         throw new AlcatrazException(Messages.PLAYER_EXISTS);
@@ -71,7 +71,7 @@ public class GameSessionService implements Serializable {
     }
 
     private void validatePlayerCount() {
-        if (this.serverState.getSession()
+        if (this.serverContext.getSession()
                 .size() >= MAX_PLAYERS) {
             throw new AlcatrazException(Messages.SESSION_FULL);
         }
@@ -81,7 +81,7 @@ public class GameSessionService implements Serializable {
     }
 
     private NetPlayer findPlayer(String name) {
-        return this.serverState.getSession()
+        return this.serverContext.getSession()
                 .stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()

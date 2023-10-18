@@ -1,7 +1,8 @@
-package at.ac.fhcampuswien.alcatraz.server.spread;
+package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
-import at.ac.fhcampuswien.alcatraz.server.ServerState;
-import at.ac.fhcampuswien.alcatraz.server.spread.service.SpreadMessageHandler;
+import at.ac.fhcampuswien.alcatraz.server.ServerContext;
+import at.ac.fhcampuswien.alcatraz.server.spread.SpreadConnectionBean;
+import at.ac.fhcampuswien.alcatraz.server.spread.SpreadGroupBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.annotation.PostConstruct;
@@ -20,15 +21,15 @@ import org.jboss.logging.Logger;
 import spread.*;
 
 @Singleton
-public class SpreadCommunicator implements AdvancedMessageListener, Serializable {
+public class SpreadCommunicationService implements AdvancedMessageListener, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Inject
-    SpreadMessageHandler spreadMessageHandler;
+    SpreadHandler spreadHandler;
 
     @Inject
-    ServerState serverState;
+    ServerContext serverContext;
 
     @ConfigProperty(name = "spread-server")
     String spreadServer;
@@ -36,7 +37,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     SpreadGroupBean spreadGroup;
     SpreadConnectionBean spreadConnection;
 
-    private static final Logger log = Logger.getLogger(SpreadCommunicator.class);
+    private static final Logger log = Logger.getLogger(SpreadCommunicationService.class);
 
     @PostConstruct
     public void initSpread() {
@@ -57,7 +58,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
             if (object instanceof GameSession) {
                 log.info("Recieved GameSession Object");
                 log.info(object);
-                spreadMessageHandler.handleSyncSession((GameSession) object);
+                spreadHandler.handleSyncSession((GameSession) object);
             }
         } catch (SpreadException e) {
             log.error("Error handling sync message", e);
@@ -67,14 +68,14 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
     @Override
     public void membershipMessageReceived(SpreadMessage spreadMessage) {
         try {
-            spreadMessageHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
+            spreadHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
         } catch (Exception e) {
             log.error("Error handling membership message", e);
         }
     }
 
     public void sendMessageToSpread(GameSession<NetPlayer> session) {
-        spreadMessageHandler.syncGameSessionWithGroup(spreadConnection, spreadGroup, session);
+        spreadHandler.syncGameSessionWithGroup(spreadConnection, spreadGroup, session);
     }
 
     private SpreadConnectionBean establishSpreadConnection() {
@@ -83,7 +84,7 @@ public class SpreadCommunicator implements AdvancedMessageListener, Serializable
             int privateName = generatePrivateName();
             InetAddress hostName = InetAddress.getByName(spreadServer);
             connection.connect(hostName, 0, Integer.toString(privateName), true, true);
-            this.serverState.setServerId(privateName);
+            this.serverContext.setServerId(privateName);
         } catch (Exception e) {
             log.error("Error establishing Spread connection", e);
             System.exit(0);

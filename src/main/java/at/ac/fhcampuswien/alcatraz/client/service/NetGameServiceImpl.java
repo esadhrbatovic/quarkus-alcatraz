@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
 import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
-import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
+import at.ac.fhcampuswien.alcatraz.shared.rmi.NetGameService;
 import at.ac.fhcampuswien.alcatraz.shared.model.AlcatrazBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
@@ -19,7 +19,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 @ApplicationScoped
-public class ClientServiceImpl extends UnicastRemoteObject implements ClientService, Serializable {
+public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameService, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -31,7 +31,7 @@ public class ClientServiceImpl extends UnicastRemoteObject implements ClientServ
 
     AlcatrazBean alcatraz = new AlcatrazBean();
 
-    protected ClientServiceImpl() throws RemoteException {
+    protected NetGameServiceImpl() throws RemoteException {
         super();
     }
 

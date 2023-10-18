@@ -48,7 +48,7 @@ public class GameSessionService implements Serializable {
                 .allMatch(NetPlayer::isReady) && this.serverContext.getSession()
                 .size() >= MIN_PLAYERS) {
             for (NetPlayer netPlayer : this.serverContext.getSession()) {
-                netPlayer.getClientService()
+                netPlayer.getNetGameService()
                         .startGame(this.serverContext.getSession(), netPlayer);
                 this.gameRunning = true;
             }

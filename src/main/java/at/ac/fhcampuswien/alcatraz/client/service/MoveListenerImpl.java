@@ -40,7 +40,7 @@ public class MoveListenerImpl implements MoveListener {
             int countRemoteExceptions = 0;
             while (!connectionWithoutException && countRemoteExceptions < MAX_REMOTE_EXCEPTIONS) {
                 try {
-                    rp.getClientService().syncMove(player, prisoner, rowOrCol, row, col);
+                    rp.getNetGameService().syncMove(player, prisoner, rowOrCol, row, col);
                     connectionWithoutException = true;
 
                 } catch (IllegalMoveException | RemoteException e) {
@@ -70,7 +70,7 @@ public class MoveListenerImpl implements MoveListener {
                 .getGameSession()
                 .forEach(netPlayer -> {
                     try {
-                        netPlayer.getClientService().quitGame();
+                        netPlayer.getNetGameService().quitGame();
                     } catch (RemoteException e) {
                         log.error("Aborting the game was not possible on all players.");
                     }
@@ -88,7 +88,7 @@ public class MoveListenerImpl implements MoveListener {
                                 .getGameSession()
                                 .forEach(netPlayer -> {
                                     try {
-                                        netPlayer.getClientService().closeGame();
+                                        netPlayer.getNetGameService().closeGame();
                                     } catch (RemoteException e) {
                                         throw new RuntimeException("The synchronization of closing the games on all players failed.");
                                     }

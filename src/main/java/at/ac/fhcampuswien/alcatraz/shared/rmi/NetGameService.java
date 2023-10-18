@@ -10,7 +10,7 @@ import at.falb.games.alcatraz.api.Prisoner;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface ClientService extends Remote {
+public interface NetGameService extends Remote {
 
     void startGame(GameSession<NetPlayer> players, NetPlayer localPlayer) throws RemoteException;
 

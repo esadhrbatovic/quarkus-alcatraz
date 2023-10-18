@@ -5,7 +5,7 @@ import at.ac.fhcampuswien.alcatraz.shared.exception.*;
 import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
-import at.ac.fhcampuswien.alcatraz.shared.rmi.ClientService;
+import at.ac.fhcampuswien.alcatraz.shared.rmi.NetGameService;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistryProvider;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,7 +27,7 @@ public class ClientController {
     RmiClient rmiClient;
 
     @Inject
-    ClientService clientService;
+    NetGameService netGameService;
 
     private GameSession<NetPlayer> gameSession;
 
@@ -36,7 +36,7 @@ public class ClientController {
             int id = registrationService.loadGameSession().size();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
             UUID remoteIdentifier = UUID.randomUUID();
-            registry.bind("ClientService" + remoteIdentifier, clientService);
+            registry.bind("NetGameService" + remoteIdentifier, netGameService);
             NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
             registrationService.register(localPlayer);
         } catch (AlreadyBoundException e) {

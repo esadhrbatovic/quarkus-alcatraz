@@ -16,6 +16,6 @@ public interface NetGameService extends Remote {
 
     void closeGame() throws RemoteException;
 
-    void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException;
+    void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException;
 
 }

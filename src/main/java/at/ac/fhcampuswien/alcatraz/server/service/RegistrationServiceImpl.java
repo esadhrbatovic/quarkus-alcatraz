@@ -24,7 +24,7 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     @Inject
     GameSessionService gameSessionService;
     @Inject
-    SpreadCommunicationService spreadCommunicator;
+    SpreadCommunicationService spreadCommunicationService;
 
     protected RegistrationServiceImpl() throws RemoteException {
         super();
@@ -43,25 +43,25 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     @Override
     public void register(NetPlayer player) throws RemoteException {
         gameSessionService.register(player);
-        spreadCommunicator.sendMessageToSpread(this.serverContext.getSession());
+        spreadCommunicationService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
     public void logOff(NetPlayer player) throws RemoteException {
         gameSessionService.unregister(player);
-        spreadCommunicator.sendMessageToSpread(this.serverContext.getSession());
+        spreadCommunicationService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
     public void joinSession(NetPlayer player) throws RemoteException {
         gameSessionService.ready(player);
-        spreadCommunicator.sendMessageToSpread(this.serverContext.getSession());
+        spreadCommunicationService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
     public void leaveSession(NetPlayer player) throws RemoteException {
         gameSessionService.undoReady(player);
-        spreadCommunicator.sendMessageToSpread(this.serverContext.getSession());
+        spreadCommunicationService.sendMessageToSpread(this.serverContext.getSession());
     }
 
 }

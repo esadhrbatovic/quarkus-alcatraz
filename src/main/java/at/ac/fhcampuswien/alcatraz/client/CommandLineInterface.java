@@ -26,9 +26,9 @@ public class CommandLineInterface {
         while (true) {
             System.out.println("User Interface");
             System.out.println("1. Register on Server");
-            System.out.println("2. Join Game Session");
+            System.out.println("2. Ready to play");
             System.out.println("3. Log Off from Server");
-            System.out.println("4. Leave Game Session");
+            System.out.println("4. Not ready to play");
             System.out.println("0. Quit");
             System.out.print("Choose an option: ");
 
@@ -38,13 +38,13 @@ public class CommandLineInterface {
                     register();
                     break;
                 case 2:
-                    joinGameSession();
+                    readyToPlay();
                     break;
                 case 3:
                     logOff();
                     break;
                 case 4:
-                    leaveGameSession();
+                    notReadyToPlay();
                     break;
                 case 0:
                     System.out.println("Program finished");
@@ -92,13 +92,13 @@ public class CommandLineInterface {
         }
     }
 
-    public void joinGameSession() {
+    public void readyToPlay() {
         checkPrimaryIsAvailable();
         if (this.username == null) {
             System.out.println("No user registered");
         } else {
             try {
-                clientController.joinSession(this.username);
+                clientController.readyToPlay(this.username);
                 System.out.println("You have joined the Game Session. Please wait until other players join");
             } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());
@@ -106,13 +106,13 @@ public class CommandLineInterface {
         }
     }
 
-    private void leaveGameSession() {
+    private void notReadyToPlay() {
         checkPrimaryIsAvailable();
         if (this.username == null) {
             System.out.println("No user registered");
         } else {
             try {
-                clientController.leaveSession(this.username);
+                clientController.notReadyToPlay(this.username);
                 System.out.println("Your player now has the status 'not ready'.");
             } catch (RemoteException | AlcatrazException e) {
                 System.out.println(e.getMessage());

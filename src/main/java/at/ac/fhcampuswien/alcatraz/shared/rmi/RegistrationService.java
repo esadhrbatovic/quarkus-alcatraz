@@ -12,9 +12,9 @@ public interface RegistrationService extends Remote, Serializable {
 
     void logOff(NetPlayer player) throws RemoteException;
 
-    void joinSession(NetPlayer player) throws RemoteException;
+    void readyToPlay(NetPlayer player) throws RemoteException;
 
-    void leaveSession(NetPlayer player) throws RemoteException;
+    void notReadyToPlay(NetPlayer player) throws RemoteException;
 
     boolean isPrimary() throws RemoteException;
 

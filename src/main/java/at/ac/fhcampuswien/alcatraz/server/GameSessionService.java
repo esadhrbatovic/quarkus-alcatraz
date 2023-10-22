@@ -39,7 +39,7 @@ public class GameSessionService implements Serializable {
     }
 
     //TODO: change
-    public void ready(NetPlayer player) throws RemoteException {
+    public void readyToPlay(NetPlayer player) throws RemoteException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReady(true);

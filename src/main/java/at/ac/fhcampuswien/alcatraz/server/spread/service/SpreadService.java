@@ -21,7 +21,7 @@ import org.jboss.logging.Logger;
 import spread.*;
 
 @Singleton
-public class SpreadCommunicationService implements AdvancedMessageListener, Serializable {
+public class SpreadService implements AdvancedMessageListener, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class SpreadCommunicationService implements AdvancedMessageListener, Seri
     SpreadGroupBean spreadGroup;
     SpreadConnectionBean spreadConnection;
 
-    private static final Logger log = Logger.getLogger(SpreadCommunicationService.class);
+    private static final Logger log = Logger.getLogger(SpreadService.class);
 
     @PostConstruct
     public void initSpread() {

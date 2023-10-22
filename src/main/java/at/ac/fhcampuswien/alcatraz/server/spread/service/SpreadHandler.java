@@ -116,7 +116,7 @@ public class SpreadHandler implements Serializable {
     }
 
     private void logServerRole() {
-        log.info(this.serverContext.isPrimary() ? "[!] I am the Primary Server [!]" : "[!] I am a Backup Server! [!]");
+        log.info(this.serverContext.isPrimary() ? "--- PRIMARY ---" : "--- BACKUP ---");
     }
 
     private void registerRMIEndpoint() {

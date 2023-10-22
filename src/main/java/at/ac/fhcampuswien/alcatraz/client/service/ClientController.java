@@ -48,9 +48,9 @@ public class ClientController {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 
-    public void joinSession(String name) throws RemoteException, AlcatrazException {
+    public void readyToPlay(String name) throws RemoteException, AlcatrazException {
         NetPlayer netPlayer = findPlayerBy(name);
-        registrationService.joinSession(netPlayer);
+        registrationService.readyToPlay(netPlayer);
     }
 
     public void logOff(String name) throws RemoteException, AlcatrazException {
@@ -58,9 +58,9 @@ public class ClientController {
         registrationService.logOff(netPlayer);
     }
 
-    public void leaveSession(String name) throws RemoteException, AlcatrazException {
+    public void notReadyToPlay(String name) throws RemoteException, AlcatrazException {
         NetPlayer netPlayer = findPlayerBy(name);
-        registrationService.leaveSession(netPlayer);
+        registrationService.notReadyToPlay(netPlayer);
     }
 
     private NetPlayer findPlayerBy(String name) throws RemoteException {

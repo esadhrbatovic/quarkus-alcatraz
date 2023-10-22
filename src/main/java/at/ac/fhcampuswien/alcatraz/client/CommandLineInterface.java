@@ -122,7 +122,7 @@ public class CommandLineInterface {
 
 
     private void findPrimary() throws RemoteException {
-        this.clientController.findPrimary();
+        this.clientController.findCurrentPrimary();
     }
 
     private void checkPrimaryIsAvailable() {

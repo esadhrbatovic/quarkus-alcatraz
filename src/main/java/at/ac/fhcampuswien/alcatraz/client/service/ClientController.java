@@ -44,7 +44,7 @@ public class ClientController {
         }
     }
 
-    public void findPrimary() throws RemoteException {
+    public void findCurrentPrimary() throws RemoteException {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 

@@ -54,7 +54,7 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
     }
 
     @Override
-    public void syncMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException {
+    public void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException {
         this.alcatraz.doMove(player, prisoner, rowOrCol, row, col);
     }
 

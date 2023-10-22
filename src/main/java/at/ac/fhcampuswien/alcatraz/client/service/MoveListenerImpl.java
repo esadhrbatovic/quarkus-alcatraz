@@ -40,7 +40,7 @@ public class MoveListenerImpl implements MoveListener {
             int countRemoteExceptions = 0;
             while (!connectionWithoutException && countRemoteExceptions < MAX_REMOTE_EXCEPTIONS) {
                 try {
-                    rp.getNetGameService().syncMove(player, prisoner, rowOrCol, row, col);
+                    rp.getNetGameService().makeMove(player, prisoner, rowOrCol, row, col);
                     connectionWithoutException = true;
 
                 } catch (IllegalMoveException | RemoteException e) {

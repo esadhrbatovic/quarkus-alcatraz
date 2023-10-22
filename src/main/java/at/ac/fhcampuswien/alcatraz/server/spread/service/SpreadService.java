@@ -52,6 +52,15 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
         }
     }
 
+    @Override
+    public void membershipMessageReceived(SpreadMessage spreadMessage) {
+        try {
+            spreadHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
+        } catch (Exception e) {
+            log.error("Error handling membership message", e);
+        }
+    }
+
     private void handleSyncMessage(SpreadMessage spreadMessage) {
         try {
             Object object = deserializeObject(spreadMessage.getData());
@@ -65,14 +74,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
         }
     }
 
-    @Override
-    public void membershipMessageReceived(SpreadMessage spreadMessage) {
-        try {
-            spreadHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
-        } catch (Exception e) {
-            log.error("Error handling membership message", e);
-        }
-    }
+
 
     public void sendMessageToSpread(GameSession<NetPlayer> session) {
         spreadHandler.syncGameSessionWithGroup(spreadConnection, spreadGroup, session);

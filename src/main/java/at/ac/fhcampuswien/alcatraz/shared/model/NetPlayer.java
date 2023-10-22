@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class NetPlayer extends Player implements Serializable {
 
-    boolean ready;
+    boolean readToPlay;
 
     NetGameService netGameService;
 
@@ -30,15 +30,11 @@ public class NetPlayer extends Player implements Serializable {
         return netGameService;
     }
 
-    public void setNetGameService(NetGameService netGameService) {
-        this.netGameService = netGameService;
+    public boolean isReadToPlay() {
+        return readToPlay;
     }
 
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
+    public void setReadToPlay(boolean readToPlay) {
+        this.readToPlay = readToPlay;
     }
 }

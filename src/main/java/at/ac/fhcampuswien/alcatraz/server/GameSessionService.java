@@ -42,10 +42,10 @@ public class GameSessionService implements Serializable {
     public void readyToPlay(NetPlayer player) throws RemoteException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
-        findPlayer.setReady(true);
+        findPlayer.setReadToPlay(true);
         if (this.serverContext.getSession()
                 .stream()
-                .allMatch(NetPlayer::isReady) && this.serverContext.getSession()
+                .allMatch(NetPlayer::isReadToPlay) && this.serverContext.getSession()
                 .size() >= MIN_PLAYERS) {
             for (NetPlayer netPlayer : this.serverContext.getSession()) {
                 netPlayer.getNetGameService()
@@ -58,7 +58,7 @@ public class GameSessionService implements Serializable {
     public void undoReady(NetPlayer player) {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
-        findPlayer.setReady(false);
+        findPlayer.setReadToPlay(false);
     }
 
     private void validatePlayerName(String name) {

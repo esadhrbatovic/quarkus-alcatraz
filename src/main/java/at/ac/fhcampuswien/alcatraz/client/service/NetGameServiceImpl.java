@@ -58,5 +58,10 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
         this.alcatraz.doMove(player, prisoner, rowOrCol, row, col);
     }
 
+    @Override
+    public void printLobby(GameSession<NetPlayer> players) throws RemoteException {
+        System.out.println("Current Session: " + players.toString());
+    }
+
 
 }

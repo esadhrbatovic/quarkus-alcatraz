@@ -18,4 +18,6 @@ public interface NetGameService extends Remote {
 
     void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException;
 
+    void printLobby(GameSession<NetPlayer> players) throws RemoteException;
+
 }

@@ -82,4 +82,14 @@ public class ClientController {
     public void setGameSession(GameSession<NetPlayer> gameSession) {
         this.gameSession = gameSession;
     }
+
+    public void startGame() {
+        try {
+            this.registrationService.startGame();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        } catch (AlcatrazException e){
+            System.out.println(e);
+        }
+    }
 }

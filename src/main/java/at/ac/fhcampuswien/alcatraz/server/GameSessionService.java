@@ -10,6 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class GameSessionService implements Serializable {
@@ -20,16 +21,23 @@ public class GameSessionService implements Serializable {
     ServerContext serverContext;
 
     //TODO: make configurable
-    static int MIN_PLAYERS = 2;
     static int MAX_PLAYERS = 4;
     boolean gameRunning = false;
 
-    public void register(NetPlayer player) {
+    public void register(NetPlayer player) throws RemoteException {
         checkGameRunning();
         this.validatePlayerName(player.getName());
         this.validatePlayerCount();
         this.serverContext.getSession()
                 .add(player);
+
+        if(!this.serverContext.isPrimary){
+            return;
+        }
+
+        for (NetPlayer p : this.serverContext.getSession()) {
+            p.getNetGameService().printLobby(this.serverContext.gameSession);
+        }
     }
 
     public void unregister(NetPlayer player) {
@@ -46,7 +54,7 @@ public class GameSessionService implements Serializable {
         if (this.serverContext.getSession()
                 .stream()
                 .allMatch(NetPlayer::isReadToPlay) && this.serverContext.getSession()
-                .size() >= MIN_PLAYERS) {
+                .size() == MAX_PLAYERS) {
             for (NetPlayer netPlayer : this.serverContext.getSession()) {
                 netPlayer.getNetGameService()
                         .startGame(this.serverContext.getSession(), netPlayer);
@@ -88,4 +96,21 @@ public class GameSessionService implements Serializable {
                 .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));
     }
 
+    public void startGame() throws RemoteException {
+        checkGameRunning();
+
+        if(this.serverContext.getSession()
+                .stream()
+                .filter(NetPlayer::isReadToPlay).toList().size()<2){
+            throw new AlcatrazException("Not enough players ready to play");
+        }
+
+        for (NetPlayer p: this.serverContext.getSession()) {
+            if(p.isReadToPlay()){
+                p.getNetGameService().startGame(this.serverContext.gameSession, p);
+            }
+        }
+
+        this.gameRunning = true;
+    }
 }

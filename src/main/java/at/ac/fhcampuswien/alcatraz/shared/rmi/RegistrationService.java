@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.shared.rmi;
 
+import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 
@@ -19,4 +20,6 @@ public interface RegistrationService extends Remote, Serializable {
     boolean isPrimary() throws RemoteException;
 
     GameSession<NetPlayer> loadGameSession() throws RemoteException;
+
+    void startGame() throws RemoteException, AlcatrazException;
 }

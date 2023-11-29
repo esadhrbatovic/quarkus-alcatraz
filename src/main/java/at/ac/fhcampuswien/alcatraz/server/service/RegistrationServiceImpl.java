@@ -41,6 +41,11 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     }
 
     @Override
+    public void startGame() throws RemoteException {
+        gameSessionService.startGame();
+    }
+
+    @Override
     public void register(NetPlayer player) throws RemoteException {
         gameSessionService.register(player);
         spreadService.sendMessageToSpread(this.serverContext.getSession());

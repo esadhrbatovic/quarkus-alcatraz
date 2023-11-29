@@ -29,6 +29,7 @@ public class CommandLineInterface {
             System.out.println("2. Ready to play");
             System.out.println("3. Log Off from Server");
             System.out.println("4. Not ready to play");
+            System.out.println("5. Start game");
             System.out.println("0. Quit");
             System.out.print("Choose an option: ");
 
@@ -46,6 +47,9 @@ public class CommandLineInterface {
                 case 4:
                     notReadyToPlay();
                     break;
+                case 5:
+                    startGame();
+                    break;
                 case 0:
                     System.out.println("Program finished");
                     System.exit(0);
@@ -54,6 +58,15 @@ public class CommandLineInterface {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
+    }
+
+    private void startGame() {
+        if (this.username == null) {
+            System.out.println("Please register first");
+            return;
+        }
+        checkPrimaryIsAvailable();
+        clientController.startGame();
     }
 
     public void register() {

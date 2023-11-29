@@ -60,6 +60,7 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
 
     @Override
     public void printLobby(GameSession<NetPlayer> players) throws RemoteException {
+        this.clientController.updateClientGui(players);
         System.out.println("Current Session: " + players.toString());
     }
 

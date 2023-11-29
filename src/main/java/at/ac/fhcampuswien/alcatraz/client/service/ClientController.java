@@ -17,6 +17,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Objects;
 import java.util.UUID;
+import javax.swing.*;
 
 @ApplicationScoped
 public class ClientController {
@@ -29,11 +30,15 @@ public class ClientController {
     @Inject
     NetGameService netGameService;
 
+    JLabel sessionSizeLabel;
+
     private GameSession<NetPlayer> gameSession;
+    private JButton startGameButton;
 
     public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
         try {
-            int id = registrationService.loadGameSession().size();
+            this.gameSession = registrationService.loadGameSession();
+            int id = gameSession.size();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
             UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("NetGameService" + remoteIdentifier, netGameService);
@@ -83,13 +88,26 @@ public class ClientController {
         this.gameSession = gameSession;
     }
 
-    public void startGame() {
+    public void startGame () throws AlcatrazException {
         try {
             this.registrationService.startGame();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
-        } catch (AlcatrazException e){
-            System.out.println(e);
         }
+    }
+
+    public void updateClientGui(GameSession<NetPlayer> gameSession) throws RemoteException {
+        this.gameSession = gameSession;
+        int numReadyPlayers = gameSession.stream().filter(NetPlayer::isReadToPlay).toList().size();
+        this.sessionSizeLabel.setText("Players ready in Session: " + numReadyPlayers);
+        this.startGameButton.setEnabled(numReadyPlayers >= 2);
+    }
+
+    public void setSessionSizeLabel(JLabel sessionSizeLabel) {
+        this.sessionSizeLabel = sessionSizeLabel;
+    }
+
+    public void setStartGameButton(JButton startGameButton) {
+        this.startGameButton = startGameButton;
     }
 }

@@ -20,7 +20,6 @@ public class GameSessionService implements Serializable {
     @Inject
     ServerContext serverContext;
 
-    //TODO: make configurable
     static int MAX_PLAYERS = 4;
     boolean gameRunning = false;
 
@@ -30,20 +29,14 @@ public class GameSessionService implements Serializable {
         this.validatePlayerCount();
         this.serverContext.getSession()
                 .add(player);
-
-        if(!this.serverContext.isPrimary){
-            return;
-        }
-
-        for (NetPlayer p : this.serverContext.getSession()) {
-            p.getNetGameService().printLobby(this.serverContext.gameSession);
-        }
+        updateGameSessionOnClients();
     }
 
-    public void unregister(NetPlayer player) {
+    public void unregister(NetPlayer player) throws RemoteException {
         checkGameRunning();
         this.serverContext.getSession()
                 .remove(player);
+        updateGameSessionOnClients();
     }
 
     //TODO: change
@@ -51,6 +44,7 @@ public class GameSessionService implements Serializable {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReadToPlay(true);
+        updateGameSessionOnClients();
         if (this.serverContext.getSession()
                 .stream()
                 .allMatch(NetPlayer::isReadToPlay) && this.serverContext.getSession()
@@ -63,10 +57,11 @@ public class GameSessionService implements Serializable {
         }
     }
 
-    public void undoReady(NetPlayer player) {
+    public void undoReady(NetPlayer player) throws RemoteException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReadToPlay(false);
+        updateGameSessionOnClients();
     }
 
     private void validatePlayerName(String name) {
@@ -112,5 +107,15 @@ public class GameSessionService implements Serializable {
         }
 
         this.gameRunning = true;
+    }
+
+    private void updateGameSessionOnClients() throws RemoteException {
+        if(!this.serverContext.isPrimary){
+            return;
+        }
+
+        for (NetPlayer p : this.serverContext.getSession()) {
+            p.getNetGameService().printLobby(this.serverContext.gameSession);
+        }
     }
 }

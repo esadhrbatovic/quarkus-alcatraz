@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
 
+import at.ac.fhcampuswien.alcatraz.shared.model.AlcatrazBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.falb.games.alcatraz.api.IllegalMoveException;
 import at.falb.games.alcatraz.api.MoveListener;
@@ -10,8 +11,6 @@ import org.jboss.logging.Logger;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,6 +27,7 @@ public class MoveListenerImpl implements MoveListener {
     public static final int MAX_REMOTE_EXCEPTIONS = 5;
 
     @Override
+    //refactor this method
     public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
         List<NetPlayer> otherPlayers = this.clientController
                 .getGameSession()
@@ -62,12 +62,22 @@ public class MoveListenerImpl implements MoveListener {
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-
     }
 
     private void handleQuitGame() {
+        quitAllClients();
+    }
+
+    @Override
+    public void gameWon(Player player) {
+        log.info("Player " + player.getName() + " won the game!");
+        ClientController.closeThisClient();
+    }
+
+    private void quitAllClients(){
         this.clientController
                 .getGameSession()
+                .stream().filter(p->p.getId()!=this.clientController.getLocalPlayerId())
                 .forEach(netPlayer -> {
                     try {
                         netPlayer.getNetGameService().closeGame();
@@ -75,27 +85,7 @@ public class MoveListenerImpl implements MoveListener {
                         log.error("Aborting the game was not possible on all players.");
                     }
                 });
+        ClientController.closeThisClient();
     }
 
-    @Override
-    public void gameWon(Player player) {
-        // todo empty GameSession, restart
-        new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        clientController
-                                .getGameSession()
-                                .forEach(netPlayer -> {
-                                    try {
-                                        netPlayer.getNetGameService().closeGame();
-                                    } catch (RemoteException e) {
-                                        throw new RuntimeException("The synchronization of closing the games on all players failed.");
-                                    }
-                                });
-                    }
-                },
-                5000
-        );
-    }
 }

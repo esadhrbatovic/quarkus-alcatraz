@@ -1,8 +1,8 @@
 package at.ac.fhcampuswien.alcatraz.client;
 
 import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
+import at.ac.fhcampuswien.alcatraz.client.util.AlcatrazClientLogger;
 import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
-import at.ac.fhcampuswien.alcatraz.shared.util.AlcatrazClientLogger;
 import io.quarkus.runtime.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 

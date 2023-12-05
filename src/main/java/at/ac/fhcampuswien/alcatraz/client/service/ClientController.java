@@ -35,6 +35,8 @@ public class ClientController {
     private GameSession<NetPlayer> gameSession;
     private JButton startGameButton;
 
+    private Integer localPlayerId;
+
     public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
         try {
             this.gameSession = registrationService.loadGameSession();
@@ -43,6 +45,7 @@ public class ClientController {
             UUID remoteIdentifier = UUID.randomUUID();
             registry.bind("NetGameService" + remoteIdentifier, netGameService);
             NetPlayer localPlayer = new NetPlayer(id, name, remoteIdentifier);
+            this.localPlayerId = id;
             registrationService.register(localPlayer);
         } catch (AlreadyBoundException e) {
             throw new RuntimeException(e);
@@ -61,6 +64,7 @@ public class ClientController {
     public void logOff(String name) throws RemoteException, AlcatrazException {
         NetPlayer netPlayer = findPlayerBy(name);
         registrationService.logOff(netPlayer);
+        this.localPlayerId = null;
     }
 
     public void notReadyToPlay(String name) throws RemoteException, AlcatrazException {
@@ -109,5 +113,23 @@ public class ClientController {
 
     public void setStartGameButton(JButton startGameButton) {
         this.startGameButton = startGameButton;
+    }
+
+
+    public Integer getLocalPlayerId() {
+        return localPlayerId;
+    }
+
+
+    public static void closeThisClient() {
+        Thread closeClientThread = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.exit(0);
+        });
+        closeClientThread.start();
     }
 }

@@ -10,7 +10,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class GameSessionService implements Serializable {
@@ -39,7 +38,6 @@ public class GameSessionService implements Serializable {
         updateGameSessionOnClients();
     }
 
-    //TODO: change
     public void readyToPlay(NetPlayer player) throws RemoteException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
@@ -106,7 +104,6 @@ public class GameSessionService implements Serializable {
             }
         }
 
-        this.gameRunning = true;
     }
 
     private void updateGameSessionOnClients() throws RemoteException {

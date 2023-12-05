@@ -43,6 +43,8 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     @Override
     public void startGame() throws RemoteException {
         gameSessionService.startGame();
+        this.serverContext.getSession().clear();
+        spreadService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override

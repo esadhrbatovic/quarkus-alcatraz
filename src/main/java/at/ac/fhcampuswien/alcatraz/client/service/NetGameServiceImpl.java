@@ -24,7 +24,7 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
     private static final long serialVersionUID = 1L;
 
     @Inject
-    MoveListener moveListener;
+    MoveListenerImpl moveListener;
 
     @Inject
     ClientController clientController;
@@ -48,10 +48,9 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
 
     @Override
     public void closeGame() throws RemoteException {
-        alcatraz.closeWindow();
-        alcatraz.disposeWindow();
-        Quarkus.waitForExit();
+          ClientController.closeThisClient();
     }
+
 
     @Override
     public void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException {

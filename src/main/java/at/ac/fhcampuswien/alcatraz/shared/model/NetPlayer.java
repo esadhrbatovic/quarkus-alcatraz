@@ -37,4 +37,16 @@ public class NetPlayer extends Player implements Serializable {
     public void setReadToPlay(boolean readToPlay) {
         this.readToPlay = readToPlay;
     }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (o instanceof Player) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            return ((NetPlayer) o).getName().equals(this.getName());
+        }
+        return false;
+    }
+
 }

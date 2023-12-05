@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.alcatraz.server;
 
 import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
 import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
+import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -98,12 +99,20 @@ public class GameSessionService implements Serializable {
             throw new AlcatrazException("Not enough players ready to play");
         }
 
-        for (NetPlayer p: this.serverContext.getSession()) {
+        GameSession<NetPlayer> finalSession = preparePlayersForStart(this.serverContext.gameSession);
+        for (NetPlayer p: finalSession) {
             if(p.isReadToPlay()){
                 p.getNetGameService().startGame(this.serverContext.gameSession, p);
             }
         }
 
+    }
+
+    private GameSession<NetPlayer> preparePlayersForStart(GameSession<NetPlayer> gameSession){
+        for (NetPlayer p : gameSession) {
+            p.setId(gameSession.indexOf(p));
+        }
+        return gameSession;
     }
 
     private void updateGameSessionOnClients() throws RemoteException {

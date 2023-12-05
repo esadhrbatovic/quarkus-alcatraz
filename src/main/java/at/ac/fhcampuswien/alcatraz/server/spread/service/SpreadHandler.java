@@ -44,17 +44,17 @@ public class SpreadHandler implements Serializable {
     }
 
     private void handleDisconnect(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.error("Someone disconnected from the Spread Group!");
+        log.error("Spread group disconnection detected");
         determinePrimaryOrBackup(connection, group, spreadMessage, true);
     }
 
     private void handleLeave(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.info("Someone left the Spread Group!");
+        log.info("Spread group leave detected");
         determinePrimaryOrBackup(connection, group, spreadMessage, true);
     }
 
     private void handleJoin(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.info("Someone joined the Spread Group!");
+        log.info("Spread group leave detected");
         log.info("current state of server="+this.serverContext.toString());
         determinePrimaryOrBackup(connection, group, spreadMessage, false);
     }
@@ -69,7 +69,7 @@ public class SpreadHandler implements Serializable {
             message.setSafe();
             connection.multicast(message);
         } catch (SpreadException e) {
-            log.error("Could not send object to Spread Group...", e);
+            log.error("Error sending object to spreadgroup", e);
         }
     }
 
@@ -114,7 +114,7 @@ public class SpreadHandler implements Serializable {
     }
 
     private void logServerRole() {
-        log.info(this.serverContext.isPrimary() ? "--- PRIMARY ---" : "--- BACKUP ---");
+        log.info(this.serverContext.isPrimary() ? "SERVER ROLE: PRIMARY" : "SERVER ROLE: BACKUP");
     }
 
     private void registerRMIEndpoint() {

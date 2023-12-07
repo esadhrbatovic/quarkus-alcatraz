@@ -1,12 +1,10 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
-
-
-import at.ac.fhcampuswien.alcatraz.shared.model.AlcatrazBean;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.falb.games.alcatraz.api.IllegalMoveException;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.rmi.RemoteException;
@@ -23,8 +21,12 @@ public class MoveListenerImpl implements MoveListener {
 
     private static final Logger log = Logger.getLogger(MoveListenerImpl.class);
 
-    public static final int TIME_TO_RETRY_CONNECTION = 100;
-    public static final int MAX_REMOTE_EXCEPTIONS = 5;
+
+    @ConfigProperty(name = "fault-tolerance-rmi-wait-time")
+    int TIME_TO_RETRY_CONNECTION;
+
+    @ConfigProperty(name = "fault-tolerance-rmi-max-retries")
+    int MAX_REMOTE_EXCEPTIONS;
 
     @Override
     //refactor this method
@@ -50,12 +52,12 @@ public class MoveListenerImpl implements MoveListener {
                 }
             }
             if (!connectionWithoutException) {
-                handleQuitGame();
+                quitAllWorkingClients(rp.getId());
             }
         }
     }
 
-    public static void handleRMIException(int countRemoteExceptions) {
+    public void handleRMIException(int countRemoteExceptions) {
         System.out.println("The connection between players is not possible. System tried" + countRemoteExceptions + "times.");
         try {
             Thread.sleep(TIME_TO_RETRY_CONNECTION);
@@ -64,20 +66,16 @@ public class MoveListenerImpl implements MoveListener {
         }
     }
 
-    private void handleQuitGame() {
-        quitAllClients();
-    }
-
     @Override
     public void gameWon(Player player) {
-        log.info("Player " + player.getName() + " won the game!");
+        log.info("Player " + player.getName() + " won!");
         ClientController.closeThisClient();
     }
 
-    private void quitAllClients(){
+    private void quitAllWorkingClients(Integer faultyPlayerId){
         this.clientController
                 .getGameSession()
-                .stream().filter(p->p.getId()!=this.clientController.getLocalPlayerId())
+                .stream().filter(p->p.getId()!=this.clientController.getLocalPlayerId() && p.getId() != faultyPlayerId)
                 .forEach(netPlayer -> {
                     try {
                         netPlayer.getNetGameService().closeGame();
@@ -87,5 +85,4 @@ public class MoveListenerImpl implements MoveListener {
                 });
         ClientController.closeThisClient();
     }
-
 }

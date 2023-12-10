@@ -24,24 +24,39 @@ public class RmiClient {
         List<Future<RegistrationService>> futures = new ArrayList<>();
 
         for (String serverIp : serverIps) {
-            Callable<RegistrationService> task = () -> {
-                try {
-                    log.info("Attempt to connect with " + serverIp);
-                    RegistrationService registrationService = (RegistrationService) Naming.lookup("rmi://" + serverIp + ":1099/RegistrationService");
-                    if (registrationService != null && registrationService.isPrimary()) {
-                        log.info("Connected to primary " + registrationService);
-                        return registrationService;
-                    }else{
-                        log.info(serverIp + " is a backup server");
-                    }
-                } catch (Exception e) {
-                    log.error("Error connecting to " + serverIp + ": " + e);
-                }
-                return null;
-            };
+            Callable<RegistrationService> task = () -> tryRmiConnection(serverIp);
             futures.add(executor.submit(task));
         }
 
+        RegistrationService primaryService = findPrimaryRegistrationService(futures);
+
+        executor.shutdown(); // Shut down the executor service
+
+        if (primaryService == null) {
+            log.error(Messages.NO_SERVER_AVAILABLE);
+            System.exit(0);
+        }
+
+        return primaryService;
+    }
+
+    private static RegistrationService tryRmiConnection(String serverIp) {
+        try {
+            log.info("Attempt to connect with " + serverIp);
+            RegistrationService registrationService = (RegistrationService) Naming.lookup("rmi://" + serverIp + ":1099/RegistrationService");
+            if (registrationService != null && registrationService.isPrimary()) {
+                log.info("Connected to primary " + registrationService);
+                return registrationService;
+            }else{
+                log.info(serverIp + " is a backup server");
+            }
+        } catch (Exception e) {
+            log.error("Error connecting to " + serverIp + ": " + e);
+        }
+        return null;
+    }
+
+    private static RegistrationService findPrimaryRegistrationService(List<Future<RegistrationService>> futures) {
         RegistrationService primaryService = null;
         for (Future<RegistrationService> future : futures) {
             RegistrationService service = null;
@@ -56,16 +71,6 @@ public class RmiClient {
                 break; // Found the primary service, no need to wait for other tasks
             }
         }
-
-        executor.shutdown(); // Shut down the executor service
-
-        if (primaryService == null) {
-            log.error(Messages.NO_SERVER_AVAILABLE);
-            System.exit(0);
-        }
-
         return primaryService;
     }
-
-
 }

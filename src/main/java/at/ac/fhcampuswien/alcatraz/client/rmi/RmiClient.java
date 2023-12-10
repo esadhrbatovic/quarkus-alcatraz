@@ -44,9 +44,9 @@ public class RmiClient {
 
         RegistrationService primaryService = null;
         for (Future<RegistrationService> future : futures) {
-            RegistrationService service = null; // this blocks until the task completes
+            RegistrationService service = null;
             try {
-                service = future.get();
+                service = future.get();// this blocks until the task completes
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(Messages.NO_SERVER_AVAILABLE, e);
             }

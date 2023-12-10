@@ -1,6 +1,5 @@
 package at.ac.fhcampuswien.alcatraz.shared.rmi;
 
-import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.falb.games.alcatraz.api.IllegalMoveException;
@@ -16,7 +15,7 @@ public interface NetGameService extends Remote {
 
     void closeGame() throws RemoteException;
 
-    void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws AlcatrazException, IllegalMoveException, RemoteException;
+    void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws IllegalMoveException, RemoteException;
 
     void printLobby(GameSession<NetPlayer> players) throws RemoteException;
 

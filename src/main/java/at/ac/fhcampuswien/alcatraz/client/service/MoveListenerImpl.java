@@ -37,7 +37,7 @@ public class MoveListenerImpl implements MoveListener {
                 .filter(netPlayer -> netPlayer.getId() != player.getId()).toList();
 
         for (NetPlayer rp : otherPlayers) {
-            log.error("syncing move for player " + rp.getName());
+            log.error("trying to send move to player " + rp.getName());
             boolean connectionWithoutException = false;
             int countRemoteExceptions = 0;
             while (!connectionWithoutException && countRemoteExceptions < MAX_REMOTE_EXCEPTIONS) {
@@ -48,7 +48,7 @@ public class MoveListenerImpl implements MoveListener {
                 } catch (IllegalMoveException | RemoteException e) {
                     countRemoteExceptions++;
                     handleRMIException(countRemoteExceptions);
-                    log.error("Move Done is not possible.");
+                    log.error("sending move to " + rp.getName() + " is not possible");
                 }
             }
             if (!connectionWithoutException) {

@@ -1,8 +1,8 @@
 package at.ac.fhcampuswien.alcatraz.client.service;
 
+import at.ac.fhcampuswien.alcatraz.client.ClientGui;
 import at.ac.fhcampuswien.alcatraz.client.rmi.RmiClient;
 import at.ac.fhcampuswien.alcatraz.shared.exception.*;
-import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.NetGameService;
@@ -17,7 +17,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Objects;
 import java.util.UUID;
-import javax.swing.*;
 
 @ApplicationScoped
 public class ClientController {
@@ -30,13 +29,12 @@ public class ClientController {
     @Inject
     NetGameService netGameService;
 
-    JLabel sessionSizeLabel;
-
     private GameSession<NetPlayer> gameSession;
-    private JButton startGameButton;
-    private Integer localPlayerId;
 
-    public void register(String name) throws RemoteException, AlcatrazException, NotBoundException {
+    private Integer localPlayerId;
+    private ClientGui clientGui;
+
+    public void register(String name) throws RemoteException, NotBoundException, AlreadyRegisteredException, FullSessionException, GameAlreadyRunningException {
         try {
             this.gameSession = registrationService.loadGameSession();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
@@ -54,27 +52,27 @@ public class ClientController {
         this.registrationService = this.rmiClient.getRegistrationService();
     }
 
-    public void readyToPlay(String name) throws RemoteException, AlcatrazException {
+    public void readyToPlay(String name) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         NetPlayer netPlayer = findPlayerBy(name);
         registrationService.readyToPlay(netPlayer);
     }
 
-    public void logOff(String name) throws RemoteException, AlcatrazException {
+    public void logOff(String name) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         NetPlayer netPlayer = findPlayerBy(name);
         registrationService.logOff(netPlayer);
         this.localPlayerId = null;
     }
 
-    public void notReadyToPlay(String name) throws RemoteException, AlcatrazException {
+    public void notReadyToPlay(String name) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         NetPlayer netPlayer = findPlayerBy(name);
         registrationService.notReadyToPlay(netPlayer);
     }
 
-    private NetPlayer findPlayerBy(String name) throws RemoteException {
+    private NetPlayer findPlayerBy(String name) throws RemoteException, UserNotFoundException {
         return this.registrationService.loadGameSession().stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
-                .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public RegistrationService getRegistrationService() {
@@ -90,7 +88,7 @@ public class ClientController {
         this.gameSession = gameSession;
     }
 
-    public void startGame() throws AlcatrazException {
+    public void startGame() throws NotEnoughPlayersException, GameAlreadyRunningException {
         try {
             this.registrationService.startGame();
         } catch (RemoteException e) {
@@ -98,21 +96,12 @@ public class ClientController {
         }
     }
 
-    public void updateClientGui(GameSession<NetPlayer> gameSession) throws RemoteException {
+    public void updateClientGui(GameSession<NetPlayer> gameSession) {
         this.gameSession = gameSession;
         int numReadyPlayers = gameSession.stream().filter(NetPlayer::isReadToPlay).toList().size();
-        this.sessionSizeLabel.setText("Players ready in Session: " + numReadyPlayers);
-        this.startGameButton.setEnabled(numReadyPlayers >= 2);
+        this.clientGui.sessionSizeLabel.setText("Players ready in Session: " + numReadyPlayers + " / " + gameSession.size());
+        this.clientGui.startGameButton.setEnabled(numReadyPlayers >= 2);
     }
-
-    public void setSessionSizeLabel(JLabel sessionSizeLabel) {
-        this.sessionSizeLabel = sessionSizeLabel;
-    }
-
-    public void setStartGameButton(JButton startGameButton) {
-        this.startGameButton = startGameButton;
-    }
-
 
     public Integer getLocalPlayerId() {
         return localPlayerId;
@@ -129,5 +118,13 @@ public class ClientController {
             System.exit(0);
         });
         closeClientThread.start();
+    }
+
+    public void setGui(ClientGui clientGui) {
+        this.clientGui = clientGui;
+    }
+
+    public ClientGui getGui(){
+        return this.clientGui;
     }
 }

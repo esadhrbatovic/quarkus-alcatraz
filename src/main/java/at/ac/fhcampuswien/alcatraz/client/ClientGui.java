@@ -2,7 +2,8 @@ package at.ac.fhcampuswien.alcatraz.client;
 
 import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
 import at.ac.fhcampuswien.alcatraz.client.util.AlcatrazClientLogger;
-import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
+import at.ac.fhcampuswien.alcatraz.shared.exception.*;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import io.quarkus.runtime.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -17,11 +18,11 @@ public class ClientGui extends JFrame {
     private String username;
 
     // Components
-    private JTextField usernameField;
-    private JTextArea outputArea;
-    private JButton registerButton, logOffButton, startGameButton;
-    private JCheckBox readyCheckBox;
-    private JLabel sessionSizeLabel;
+    public JTextField usernameField;
+    public JTextArea outputArea;
+    public JButton registerButton, logOffButton, startGameButton;
+    public JCheckBox readyCheckBox;
+    public JLabel sessionSizeLabel;
 
     public void initializeUI(ClientController clientController) {
         this.clientController = clientController;
@@ -71,116 +72,95 @@ public class ClientGui extends JFrame {
             }
         });
 
-        this.clientController.setSessionSizeLabel(this.sessionSizeLabel);
-        this.clientController.setStartGameButton(this.startGameButton);
+        this.clientController.setGui(this);
         setVisible(true);
     }
 
     private void startGame() {
         if (this.username == null) {
-            AlcatrazClientLogger.logInfo(outputArea,"Please register first");
+            AlcatrazClientLogger.logInfo(outputArea, Messages.REGISTER_FIRST);
             return;
         }
         checkPrimaryIsAvailable();
-        try{
+        try {
             clientController.startGame();
-        }catch(AlcatrazException e){
+        } catch (NotEnoughPlayersException | GameAlreadyRunningException e) {
             AlcatrazClientLogger.logError(this, e.getMessage());
         }
     }
 
     public void register() {
         checkPrimaryIsAvailable();
-        if (this.username != null) {
-            AlcatrazClientLogger.logError(this, "This user is already registered");
-        } else {
-            try {
-                String username = usernameField.getText();
-                if(StringUtil.isNullOrEmpty(username)){
-                    AlcatrazClientLogger.logInfo(outputArea,"please provide a username");
-                    return;
-                }
-                clientController.register(username);
-                this.username = username;
-                this.readyCheckBox.setEnabled(true);
-                this.logOffButton.setEnabled(true);
-                this.registerButton.setEnabled(false);
-                AlcatrazClientLogger.logInfo(outputArea,"registered user: " + this.username);
-            } catch (AlcatrazException e) {
-                AlcatrazClientLogger.logError(this, e.getMessage());
-            } catch (NotBoundException | RemoteException e) {
-                throw new RuntimeException(e);
+
+        try {
+            String username = usernameField.getText();
+            if (StringUtil.isNullOrEmpty(username)) {
+                AlcatrazClientLogger.logError(this, Messages.NO_USERNAME_PROVIDED);
+                return;
             }
+            clientController.register(username);
+            this.username = username;
+            this.readyCheckBox.setEnabled(true);
+            this.logOffButton.setEnabled(true);
+            this.registerButton.setEnabled(false);
+            AlcatrazClientLogger.logInfo(outputArea, "registered user: " + this.username);
+        } catch (AlreadyRegisteredException | FullSessionException | GameAlreadyRunningException e) {
+            AlcatrazClientLogger.logError(this, e.getMessage());
+        } catch (NotBoundException | RemoteException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
 
     private void logOff() {
         checkPrimaryIsAvailable();
-        if (this.username == null) {
-            AlcatrazClientLogger.logInfo(outputArea,"No user registered");
-        } else {
-            try {
-                clientController.logOff(this.username);
-                this.username = null;
-                AlcatrazClientLogger.logInfo(outputArea,"You have successfully logged off.");
-                this.readyCheckBox.setEnabled(false);
-                this.readyCheckBox.setSelected(false);
-                this.logOffButton.setEnabled(false);
-                this.registerButton.setEnabled(true);
-                this.sessionSizeLabel.setText("");
-            } catch (RemoteException | AlcatrazException e) {
-                AlcatrazClientLogger.logError(this, e.getMessage());
-            }
+
+        try {
+            clientController.logOff(this.username);
+            this.username = null;
+            AlcatrazClientLogger.logInfo(outputArea, Messages.LOGOFF_SUCCESS);
+            this.readyCheckBox.setEnabled(false);
+            this.readyCheckBox.setSelected(false);
+            this.logOffButton.setEnabled(false);
+            this.registerButton.setEnabled(true);
+            this.sessionSizeLabel.setText("");
+        } catch (RemoteException | UserNotFoundException | GameAlreadyRunningException e) {
+            AlcatrazClientLogger.logError(this, e.getMessage());
         }
+
     }
 
     public void readyToPlay() {
         checkPrimaryIsAvailable();
-        if (this.username == null) {
-            AlcatrazClientLogger.logInfo(outputArea,"No user registered");
-        } else {
-            try {
-                clientController.readyToPlay(this.username);
-                AlcatrazClientLogger.logInfo(outputArea,"Your player now has the status 'ready'.");
-            } catch (RemoteException | AlcatrazException e) {
-                AlcatrazClientLogger.logError(this, e.getMessage());
-            }
+
+        try {
+            clientController.readyToPlay(this.username);
+            AlcatrazClientLogger.logInfo(outputArea, Messages.READY_TO_PLAY_SUCCESS);
+        } catch (RemoteException | UserNotFoundException | GameAlreadyRunningException e) {
+            AlcatrazClientLogger.logError(this, e.getMessage());
         }
+
     }
 
     private void notReadyToPlay() {
         checkPrimaryIsAvailable();
-        if (this.username == null) {
-            System.out.println("No user registered");
-        } else {
-            try {
-                clientController.notReadyToPlay(this.username);
-                AlcatrazClientLogger.logInfo(outputArea,"Your player now has the status 'not ready'.");
-            } catch (RemoteException | AlcatrazException e) {
-                AlcatrazClientLogger.logError(this, e.getMessage());
-            }
+        try {
+            clientController.notReadyToPlay(this.username);
+            AlcatrazClientLogger.logInfo(outputArea, Messages.NOT_READY_TO_PLAY_SUCCES);
+        } catch (RemoteException | UserNotFoundException | GameAlreadyRunningException e) {
+            AlcatrazClientLogger.logError(this, e.getMessage());
         }
-    }
 
-
-    private void findPrimary() throws RemoteException {
-        this.clientController.findCurrentPrimary();
     }
 
     private void checkPrimaryIsAvailable() {
         try {
-            if (this.clientController.getRegistrationService() == null || !this.clientController.getRegistrationService()
-                    .isPrimary()) {
-                findPrimary();
-            }
-        } catch (RemoteException e) {
-            try {
-                findPrimary();
-            } catch (RemoteException ex) {
-                AlcatrazClientLogger.logError(this, ex.getMessage());
-                System.exit(0);
-            }
+            this.clientController.findCurrentPrimary();
+        } catch (RemoteException ex) {
+            //cached primary in clientController
+            AlcatrazClientLogger.logError(this, ex.getMessage());
+            System.exit(0);
         }
     }
 

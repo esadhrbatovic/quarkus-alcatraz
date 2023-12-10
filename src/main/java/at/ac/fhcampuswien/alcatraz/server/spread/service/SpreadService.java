@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.alcatraz.server.spread.service;
 import at.ac.fhcampuswien.alcatraz.server.ServerContext;
 import at.ac.fhcampuswien.alcatraz.server.spread.SpreadConnectionBean;
 import at.ac.fhcampuswien.alcatraz.server.spread.SpreadGroupBean;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.annotation.PostConstruct;
@@ -57,7 +58,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
         try {
             spreadHandler.handleMembershipMessage(spreadConnection, spreadGroup, spreadMessage);
         } catch (Exception e) {
-            log.error("Error handling membership message", e);
+            log.error(Messages.ERROR_HANDLING_MEMBERSHIP_MESSAGE, e);
         }
     }
 
@@ -70,7 +71,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
                 spreadHandler.handleSyncSession((GameSession) object);
             }
         } catch (SpreadException e) {
-            log.error("Error handling sync message", e);
+            log.error(Messages.ERROR_HANDLING_SYNC_MESSAGE, e);
         }
     }
 
@@ -88,7 +89,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
             connection.connect(hostName, 0, Integer.toString(privateName), true, true);
             this.serverContext.setServerId(privateName);
         } catch (Exception e) {
-            log.error("Error establishing Spread connection", e);
+            log.error(Messages.ERROR_ESTABLISHING_SPREAD_CONNECTION, e);
             System.exit(0);
         }
         connection.add(this);
@@ -104,7 +105,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
         try {
             group.join(spreadConnection, "group");
         } catch (SpreadException e) {
-            log.error("Error joining Spread group", e);
+            log.error(Messages.ERROR_JOINING_SPREAD_GROUP, e);
             System.exit(0);
         }
         return group;

@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.alcatraz.server.spread.service;
 
 import at.ac.fhcampuswien.alcatraz.server.rmi.RmiServer;
 import at.ac.fhcampuswien.alcatraz.server.ServerContext;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import jakarta.inject.Inject;
@@ -30,7 +31,7 @@ public class SpreadHandler implements Serializable {
     RmiServer rmiServer;
 
     public void handleMembershipMessage(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.info("Handling membership message...");
+        log.info(Messages.SPREAD_MEMBERSHIP_MESSAGE_RECIEVED);
 
         if (spreadMessage.getMembershipInfo().isCausedByDisconnect()) {
             handleDisconnect(connection, group, spreadMessage);
@@ -39,29 +40,29 @@ public class SpreadHandler implements Serializable {
         } else if (spreadMessage.getMembershipInfo().isCausedByJoin()) {
             handleJoin(connection, group, spreadMessage);
         } else {
-            log.debug("Unhandled membership message type.");
+            log.debug(Messages.UNKNOWN_MEMBERSHIP_MESSAGE);
         }
     }
 
     private void handleDisconnect(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.error("Spread group disconnection detected");
+        log.error(Messages.SPREAD_DISCONNECT_DETECTED);
         determinePrimaryOrBackup(connection, group, spreadMessage, true);
     }
 
     private void handleLeave(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.info("Spread group leave detected");
+        log.info(Messages.SPREAD_LEAVE_DETECTED);
         determinePrimaryOrBackup(connection, group, spreadMessage, true);
     }
 
     private void handleJoin(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
-        log.info("Spread group leave detected");
+        log.info(Messages.SPREAD_JOIN_DETECTED);
         log.info("current state of server="+this.serverContext.toString());
         determinePrimaryOrBackup(connection, group, spreadMessage, false);
     }
 
     public void syncGameSessionWithGroup(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {
         try {
-            log.info("Sending GameSession to all");
+            log.info(Messages.SENDING_GAMESESSION);
             SpreadMessage message = new SpreadMessage();
             message.setObject(gameSession);
             message.setType((short) 1); // sync
@@ -69,7 +70,7 @@ public class SpreadHandler implements Serializable {
             message.setSafe();
             connection.multicast(message);
         } catch (SpreadException e) {
-            log.error("Error sending object to spreadgroup", e);
+            log.error(Messages.ERROR_SENDING_SESSION, e);
         }
     }
 
@@ -110,7 +111,7 @@ public class SpreadHandler implements Serializable {
         return Arrays.stream(spreadMessage.getMembershipInfo().getMembers())
                 .mapToInt(item -> getIdOfMember(item.toString()))
                 .max()
-                .orElseThrow(() -> new RuntimeException("Could not determine primary/backup state of the new Server"));
+                .orElseThrow(() -> new RuntimeException(Messages.ERROR_DETERMINING_SERVER_ROLE));
     }
 
     private void logServerRole() {

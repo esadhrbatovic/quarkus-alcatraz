@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.alcatraz.client;
 
 import at.ac.fhcampuswien.alcatraz.client.service.ClientController;
+import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
@@ -20,12 +21,13 @@ public class ClientApplication implements QuarkusApplication {
                 ClientGui gui = new ClientGui();
                 gui.initializeUI(clientController);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println(Messages.ERROR_GUI_START);
+                System.err.println(e.getMessage());
+                System.exit(0);
             }
         });
 
-        // Keep the application running. Depending on how your GUI is set up,
-        // you might need a different mechanism to wait for the GUI to close.
+        // Keep the application running.
         synchronized (this) {
             try {
                 this.wait();

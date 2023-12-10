@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.alcatraz.server;
 
-import at.ac.fhcampuswien.alcatraz.shared.exception.AlcatrazException;
-import at.ac.fhcampuswien.alcatraz.shared.exception.messages.Messages;
+import at.ac.fhcampuswien.alcatraz.shared.exception.*;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,7 +22,7 @@ public class GameSessionService implements Serializable {
     static int MAX_PLAYERS = 4;
     boolean gameRunning = false;
 
-    public void register(NetPlayer player) throws RemoteException {
+    public void register(NetPlayer player) throws RemoteException, AlreadyRegisteredException, GameAlreadyRunningException, FullSessionException {
         checkGameRunning();
         this.validatePlayerName(player.getName());
         this.validatePlayerCount();
@@ -32,14 +31,16 @@ public class GameSessionService implements Serializable {
         updateGameSessionOnClients();
     }
 
-    public void unregister(NetPlayer player) throws RemoteException {
+    public void unregister(NetPlayer player) throws RemoteException, GameAlreadyRunningException, UserNotFoundException {
         checkGameRunning();
+        findPlayer(player.getName());
         this.serverContext.getSession()
                 .remove(player);
         updateGameSessionOnClients();
     }
 
-    public void readyToPlay(NetPlayer player) throws RemoteException {
+
+    public void readyToPlay(NetPlayer player) throws RemoteException, GameAlreadyRunningException, UserNotFoundException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReadToPlay(true);
@@ -56,47 +57,49 @@ public class GameSessionService implements Serializable {
         }
     }
 
-    public void undoReady(NetPlayer player) throws RemoteException {
+    public void undoReady(NetPlayer player) throws RemoteException, GameAlreadyRunningException, UserNotFoundException {
         checkGameRunning();
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReadToPlay(false);
         updateGameSessionOnClients();
     }
 
-    private void validatePlayerName(String name) {
-        this.serverContext.getSession()
-                .forEach(netPlayer -> {
-                    if (Objects.equals(netPlayer.getName(), name)) {
-                        throw new AlcatrazException(Messages.PLAYER_EXISTS);
-                    }
-                });
-    }
-
-    private void validatePlayerCount() {
-        if (this.serverContext.getSession()
-                .size() >= MAX_PLAYERS) {
-            throw new AlcatrazException(Messages.SESSION_FULL);
+    private void validatePlayerName(String name) throws AlreadyRegisteredException {
+        for (NetPlayer netPlayer: this.serverContext.getSession()) {
+            if (Objects.equals(netPlayer.getName(), name)) {
+                throw new AlreadyRegisteredException();
+            }
         }
     }
 
-    private void checkGameRunning() {
+    private void validatePlayerCount() throws FullSessionException {
+        if (this.serverContext.getSession()
+                .size() >= MAX_PLAYERS) {
+            throw new FullSessionException();
+        }
     }
 
-    private NetPlayer findPlayer(String name) {
+    private void checkGameRunning() throws GameAlreadyRunningException {
+        if(this.gameRunning){
+            throw new GameAlreadyRunningException();
+        }
+    }
+
+    private NetPlayer findPlayer(String name) throws UserNotFoundException {
         return this.serverContext.getSession()
                 .stream()
                 .filter(x -> Objects.equals(x.getName(), name))
                 .findFirst()
-                .orElseThrow(() -> new AlcatrazException(Messages.PLAYER_NOT_FOUND));
+                .orElseThrow(UserNotFoundException::new);
     }
 
-    public void startGame() throws RemoteException {
+    public void startGame() throws RemoteException, GameAlreadyRunningException, NotEnoughPlayersException {
         checkGameRunning();
 
         if(this.serverContext.getSession()
                 .stream()
                 .filter(NetPlayer::isReadToPlay).toList().size()<2){
-            throw new AlcatrazException("Not enough players ready to play");
+            throw new NotEnoughPlayersException();
         }
 
         GameSession<NetPlayer> finalSession = preparePlayersForStart(this.serverContext.gameSession);
@@ -124,4 +127,5 @@ public class GameSessionService implements Serializable {
             p.getNetGameService().printLobby(this.serverContext.gameSession);
         }
     }
+
 }

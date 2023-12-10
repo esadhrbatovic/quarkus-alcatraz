@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.alcatraz.server.service;
 import at.ac.fhcampuswien.alcatraz.server.GameSessionService;
 import at.ac.fhcampuswien.alcatraz.server.ServerContext;
 import at.ac.fhcampuswien.alcatraz.server.spread.service.SpreadService;
+import at.ac.fhcampuswien.alcatraz.shared.exception.*;
 import at.ac.fhcampuswien.alcatraz.shared.model.NetPlayer;
 import at.ac.fhcampuswien.alcatraz.shared.model.GameSession;
 import at.ac.fhcampuswien.alcatraz.shared.rmi.RegistrationService;
@@ -41,32 +42,32 @@ public class RegistrationServiceImpl extends UnicastRemoteObject implements Regi
     }
 
     @Override
-    public void startGame() throws RemoteException {
+    public void startGame() throws RemoteException, NotEnoughPlayersException, GameAlreadyRunningException {
         gameSessionService.startGame();
         this.serverContext.getSession().clear();
         spreadService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
-    public void register(NetPlayer player) throws RemoteException {
+    public void register(NetPlayer player) throws RemoteException, AlreadyRegisteredException, FullSessionException, GameAlreadyRunningException {
         gameSessionService.register(player);
         spreadService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
-    public void logOff(NetPlayer player) throws RemoteException {
+    public void logOff(NetPlayer player) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         gameSessionService.unregister(player);
         spreadService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
-    public void readyToPlay(NetPlayer player) throws RemoteException {
+    public void readyToPlay(NetPlayer player) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         gameSessionService.readyToPlay(player);
         spreadService.sendMessageToSpread(this.serverContext.getSession());
     }
 
     @Override
-    public void notReadyToPlay(NetPlayer player) throws RemoteException {
+    public void notReadyToPlay(NetPlayer player) throws RemoteException, UserNotFoundException, GameAlreadyRunningException {
         gameSessionService.undoReady(player);
         spreadService.sendMessageToSpread(this.serverContext.getSession());
     }

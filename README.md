@@ -1,7 +1,3 @@
-Full doc coming soon...
-
-
-
 quick local test :
 - disable firewall
 - java 17 jdk needed

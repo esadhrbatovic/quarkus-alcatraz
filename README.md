@@ -1,3 +1,11 @@
+This project was developed using the quarkus framework, for faster developer experience: 
+It provides hot code reload functionality and dependency injection using Jakarta EE.
+We use maven for dependency management and packaging.
+Client and server are both in this one codebase, however using multiple entry points via 
+run arguments in quarkus, you can run this application as either a client or a server.
+- Client entry is at at.ac.fhcampuswien.alcatraz.client.ClientApplication
+- Server entry is at at.ac.fhcampuswien.alcatraz.server.ServerApplication
+
 quick local test :
 - disable firewall
 - java 17 jdk needed

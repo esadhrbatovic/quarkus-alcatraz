@@ -29,7 +29,6 @@ public class MoveListenerImpl implements MoveListener {
     int MAX_REMOTE_EXCEPTIONS;
 
     @Override
-    //refactor this method
     public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
         List<NetPlayer> otherPlayers = this.clientController
                 .getGameSession()
@@ -58,7 +57,7 @@ public class MoveListenerImpl implements MoveListener {
     }
 
     public void handleRMIException(int countRemoteExceptions) {
-        System.out.println("The connection between players is not possible. System tried" + countRemoteExceptions + "times.");
+        System.out.println("Connection to player not possible. Tried " + countRemoteExceptions + " times.");
         try {
             Thread.sleep(TIME_TO_RETRY_CONNECTION);
         } catch (InterruptedException ie) {
@@ -80,7 +79,7 @@ public class MoveListenerImpl implements MoveListener {
                     try {
                         netPlayer.getNetGameService().closeGame();
                     } catch (RemoteException e) {
-                        log.error("Aborting the game was not possible on all players.");
+                        log.error("Could not close game on all clients.");
                     }
                 });
         ClientController.closeThisClient();

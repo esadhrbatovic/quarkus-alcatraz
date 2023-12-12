@@ -17,6 +17,9 @@ public interface NetGameService extends Remote {
 
     void makeMove(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws IllegalMoveException, RemoteException;
 
+    /**
+     * NEW SINCE DESIGN PROPOSAL
+     */
     void printLobby(GameSession<NetPlayer> players) throws RemoteException;
 
 }

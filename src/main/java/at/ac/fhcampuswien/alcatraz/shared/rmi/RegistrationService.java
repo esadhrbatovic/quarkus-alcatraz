@@ -21,5 +21,8 @@ public interface RegistrationService extends Remote, Serializable {
 
     GameSession<NetPlayer> loadGameSession() throws RemoteException;
 
+    /**
+     * NEW SINCE DESIGN PROPOSAL
+     */
     void startGame() throws RemoteException, GameAlreadyRunningException, NotEnoughPlayersException;
 }

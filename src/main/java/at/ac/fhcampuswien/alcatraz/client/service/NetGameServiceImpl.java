@@ -35,6 +35,7 @@ public class NetGameServiceImpl extends UnicastRemoteObject implements NetGameSe
     @Override
     public void startGame(GameSession<NetPlayer> gameSession, NetPlayer localPlayer) throws RemoteException {
         clientController.setGameSession(gameSession);
+        clientController.setLocalPlayerId(localPlayer.getId());
         this.alcatraz.init(gameSession.size(), localPlayer.getId());
         gameSession.forEach(netPlayer -> this.alcatraz.getPlayer(netPlayer.getId())
                 .setName(netPlayer.getName()));

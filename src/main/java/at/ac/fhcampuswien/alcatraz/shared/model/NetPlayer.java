@@ -15,13 +15,13 @@ public class NetPlayer extends Player implements Serializable {
 
     NetGameService netGameService;
 
-    public NetPlayer(int id, String name, UUID serviceIdentifier) throws RemoteException, NotBoundException {
+    public NetPlayer(int id, String name, UUID rmiId) throws RemoteException, NotBoundException {
         super(id);
         try {
             this.netGameService = (NetGameService) LocateRegistry.getRegistry(1098)
-                    .lookup("NetGameService" + serviceIdentifier);
+                    .lookup("NetGameService" + rmiId);
         } catch (NotBoundException e) {
-            throw new NotBoundException("The service could not be found on the server.");
+            throw new NotBoundException("Could not create RMI Connection.");
         }
         this.setName(name);
     }

@@ -38,9 +38,9 @@ public class ClientController {
         try {
             this.gameSession = registrationService.loadGameSession();
             Registry registry = RegistryProvider.getOrCreateRegistry(1098);
-            UUID remoteIdentifier = UUID.randomUUID();
-            registry.bind("NetGameService" + remoteIdentifier, netGameService);
-            NetPlayer localPlayer = new NetPlayer(-1, name, remoteIdentifier);
+            UUID rmiUUID = UUID.randomUUID();
+            registry.bind("NetGameService" + rmiUUID, netGameService);
+            NetPlayer localPlayer = new NetPlayer(-1, name, rmiUUID);
             this.localPlayerId = -1;
             registrationService.register(localPlayer);
         } catch (AlreadyBoundException e) {
@@ -105,6 +105,10 @@ public class ClientController {
 
     public Integer getLocalPlayerId() {
         return localPlayerId;
+    }
+
+    public void setLocalPlayerId(Integer id) {
+        this.localPlayerId = id;
     }
 
 

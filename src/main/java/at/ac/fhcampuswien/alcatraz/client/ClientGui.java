@@ -124,6 +124,7 @@ public class ClientGui extends JFrame {
             this.readyCheckBox.setSelected(false);
             this.logOffButton.setEnabled(false);
             this.registerButton.setEnabled(true);
+            this.startGameButton.setEnabled(false);
             this.sessionSizeLabel.setText("");
         } catch (RemoteException | UserNotFoundException | GameAlreadyRunningException e) {
             AlcatrazClientLogger.logError(this, e.getMessage());

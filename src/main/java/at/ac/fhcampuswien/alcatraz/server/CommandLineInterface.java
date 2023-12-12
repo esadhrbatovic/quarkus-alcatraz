@@ -15,14 +15,14 @@ public class CommandLineInterface {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Server Interface");
-            System.out.println("1. Print Server info");
+            System.out.println("1. Print ServerContext");
             System.out.println("0. Quit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1:
-                    printServerInfo();
+                    printServerContext();
                     break;
                 case 0:
                     System.out.println("Program finished");
@@ -33,7 +33,7 @@ public class CommandLineInterface {
             }
         }
     }
-    private void printServerInfo() {
+    private void printServerContext() {
         System.out.println(serverContext.toString());
     }
 }

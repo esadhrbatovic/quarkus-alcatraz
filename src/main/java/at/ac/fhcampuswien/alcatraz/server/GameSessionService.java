@@ -19,7 +19,7 @@ public class GameSessionService implements Serializable {
     @Inject
     ServerContext serverContext;
 
-    static int MAX_PLAYERS = 4;
+    static final int MAX_PLAYERS = 4;
     boolean gameRunning = false;
 
     public void register(NetPlayer player) throws RemoteException, AlreadyRegisteredException, GameAlreadyRunningException, FullSessionException {

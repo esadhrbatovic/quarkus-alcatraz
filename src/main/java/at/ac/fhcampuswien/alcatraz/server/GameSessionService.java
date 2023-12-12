@@ -45,15 +45,19 @@ public class GameSessionService implements Serializable {
         NetPlayer findPlayer = findPlayer(player.getName());
         findPlayer.setReadToPlay(true);
         updateGameSessionOnClients();
-        if (this.serverContext.getSession()
+
+
+        if (this.serverContext.gameSession
                 .stream()
-                .allMatch(NetPlayer::isReadToPlay) && this.serverContext.getSession()
+                .allMatch(NetPlayer::isReadToPlay) && this.serverContext.gameSession
                 .size() == MAX_PLAYERS) {
-            for (NetPlayer netPlayer : this.serverContext.getSession()) {
+
+            GameSession<NetPlayer> finalSession = preparePlayersForStart(this.serverContext.gameSession);
+            for (NetPlayer netPlayer : finalSession) {
                 netPlayer.getNetGameService()
-                        .startGame(this.serverContext.getSession(), netPlayer);
-                this.gameRunning = true;
+                        .startGame(finalSession, netPlayer);
             }
+            this.serverContext.getSession().clear();
         }
     }
 
@@ -105,7 +109,7 @@ public class GameSessionService implements Serializable {
         GameSession<NetPlayer> finalSession = preparePlayersForStart(this.serverContext.gameSession);
         for (NetPlayer p: finalSession) {
             if(p.isReadToPlay()){
-                p.getNetGameService().startGame(this.serverContext.gameSession, p);
+                p.getNetGameService().startGame(finalSession, p);
             }
         }
 
@@ -115,6 +119,8 @@ public class GameSessionService implements Serializable {
         for (NetPlayer p : gameSession) {
             p.setId(gameSession.indexOf(p));
         }
+
+        System.out.println("game is starting, session with final ids: " + gameSession);
         return gameSession;
     }
 

@@ -7,10 +7,21 @@ quick local test :
 - java 17 jdk needed
 - mvn or mvn wrapper (.\mvnw) validate : This adds the Spread and Alcatraz jars to the local maven repository.
 - mvn or mvn wrapper (.\mvnw) clean install : builds the project.
-- Configure IDE run configuration. I recommend IntelliJ. Use the quarkus template. Server uses -Dquarkus.package.main-class=server in Configuraiton Arguments. Client uses -Dquarkus.package.main-class=client.
+- Configure IDE run configuration. IntelliJ is recommended. Use the quarkus template. Server uses -Dquarkus.package.main-class=server in Configuraiton Arguments. Client uses -Dquarkus.package.main-class=client.
+- make sure serverIps: 127.0.0.1 and spread-server: 127.0.0.1 is configured in application.properties
 - check "Allow multiple instances" for each
 - Run spread -n localhost in assets/spread-cli/.
 - Run Quarkus Server Instance with Server run configuration
-- Run 2 Client instances
+- Run some Client instances with Client run configuraion
 
-note: cli input (System.in) bugs with IntelliJ Debug Mode. I recommend you just run normally
+Testing in LAN - same steps as local test with following adjustments:
+- spread.conf should be the same on all nodes that have a running spread daemon
+- our example: Spread_Segment  192.168.92.255:4803 {
+    anna  192.168.92.113
+    julia  192.168.92.106
+    esad 192.168.92.174
+}
+- make sure the application properties are set like the following: 
+- spread-server=your ip or the ip of a machine where a spread daemon is running, if you are anna and have a spread daemon running : spread-server=192.168.92.113
+- serverIps=list of known servers, in our case it might be serverIps: 192.168.178.31,192.168.178.36
+- instead of running spread -n localhost simply run spread

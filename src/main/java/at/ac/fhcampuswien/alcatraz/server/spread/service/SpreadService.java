@@ -97,7 +97,7 @@ public class SpreadService implements AdvancedMessageListener, Serializable {
     }
 
     private int generatePrivateName() {
-        return new Random().nextInt(99999);
+        return new Random().nextInt(1000000);
     }
 
     private SpreadGroupBean joinSpreadGroup() {

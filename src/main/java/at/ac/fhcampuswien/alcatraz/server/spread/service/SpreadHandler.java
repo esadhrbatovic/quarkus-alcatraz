@@ -56,8 +56,8 @@ public class SpreadHandler implements Serializable {
 
     private void handleJoin(SpreadConnection connection, SpreadGroup group, SpreadMessage spreadMessage) {
         log.info(Messages.SPREAD_JOIN_DETECTED);
-        log.info("current state of server="+this.serverContext.toString());
         determinePrimaryOrBackup(connection, group, spreadMessage, false);
+        log.info("current state of server="+this.serverContext.toString());
     }
 
     public void syncGameSessionWithGroup(SpreadConnection connection, SpreadGroup group, GameSession<NetPlayer> gameSession) {

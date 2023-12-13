@@ -18,6 +18,8 @@ quick local test :
 - Run Quarkus Server Instance with Server run configuration
 - Run some Client instances with Client run configuraion
 
+- optional way to run after mvn validate and mvn clean install - in root of project: mvn quarkus:dev -Dquarkus.package.main-class=server OR mvn quarkus:dev -Dquarkus.package.main-class=client 
+
 Testing in LAN - same steps as local test with following adjustments:
 - spread.conf should be the same on all nodes that have a running spread daemon
 - our example: Spread_Segment  192.168.92.255:4803 {
